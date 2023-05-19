@@ -24,6 +24,20 @@ func InitServer() *echo.Echo {
 
 	v1 := app.Group("/api/v1")
 
+	fakultas := v1.Group("/fakultas", customMiddleware.Authentication)
+	fakultas.GET("", handler.GetAllFakultasHandler)
+	fakultas.GET("/:id", handler.GetFakultasByIdHandler)
+	fakultas.POST("", handler.InsertFakultasHandler, customMiddleware.GrantAdminUmum)
+	fakultas.PUT("/:id", handler.EditFakultasHandler, customMiddleware.GrantAdminUmum)
+	fakultas.DELETE("/:id", handler.DeleteFakultasHandler, customMiddleware.GrantAdminUmum)
+
+	prodi := v1.Group("/prodi", customMiddleware.Authentication)
+	prodi.GET("", handler.GetAllProdiHandler)
+	prodi.GET("/:id", handler.GetProdiByIdHandler)
+	prodi.POST("", handler.InsertProdiHandler, customMiddleware.GrantAdminUmum)
+	prodi.PUT("/:id", handler.EditProdiHandler, customMiddleware.GrantAdminUmum)
+	prodi.DELETE("/:id", handler.DeleteProdiHandler, customMiddleware.GrantAdminUmum)
+
 	akun := v1.Group("/akun")
 	akun.POST("/login", handler.LoginHandler)
 	akun.PATCH("/password/change", handler.ChangePasswordHandler, customMiddleware.Authentication)
