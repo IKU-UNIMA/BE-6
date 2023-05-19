@@ -63,7 +63,7 @@ func GetAllKerjasamaIAHandler(c echo.Context) error {
 	// if err := db.WithContext(ctx).Order("id").Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Find(&result).Error; err != nil {
 	// 	return util.FailedResponse(http.StatusInternalServerError, nil)
 	// }
-	if err := db.WithContext(ctx).Table("kerjasama").Where(condition).Preload("Prodi").Find(&data).Count(&totalResult).Error; err != nil {
+	if err := db.WithContext(ctx).Debug().Table("kerjasama").Debug().Where(condition).Debug().Preload("Prodi").Debug().Find(&data).Count(&totalResult).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
@@ -178,7 +178,6 @@ func ImportKerjasamaIAHandler(c echo.Context) error {
 			Mitra:        rows[i][5],
 			Kegiatan:     rows[i][6],
 			Status:       rows[i][7],
-
 		})
 	}
 
@@ -215,7 +214,7 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 	}
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "fakultas sudah ada"})
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat duplikasi"})
 		}
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)

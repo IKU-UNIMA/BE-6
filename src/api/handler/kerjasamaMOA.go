@@ -146,7 +146,7 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 	}
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "fakultas sudah ada"})
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat duplikasi"})
 		}
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)

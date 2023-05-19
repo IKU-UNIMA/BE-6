@@ -64,14 +64,14 @@ func InitServer() *echo.Echo {
 	kerjsamaIA.PUT("/:id", handler.EditKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
 	kerjsamaIA.DELETE("/:id", handler.DeleteKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
 
-	kerjsamaMOA := v1.Group("/kerjasamaMOA", customMiddleware.Authentication, customMiddleware.GrantAdminUmum)
+	kerjsamaMOA := v1.Group("/kerjasamaMOA", customMiddleware.Authentication)
 	kerjsamaMOA.GET("", handler.GetAllKerjasamaMOAHandler)
 	kerjsamaMOA.GET("/:id", handler.GetKerjasamaMOAByIdHandler)
 	kerjsamaMOA.POST("", handler.InsertKerjasamaMOAHandler, customMiddleware.GrantAdminIKU6)
 	kerjsamaMOA.PUT("/:id", handler.EditKerjasamaMOAHandler, customMiddleware.GrantAdminIKU6)
 	kerjsamaMOA.DELETE("/:id", handler.DeleteKerjasamaMOAHandler, customMiddleware.GrantAdminIKU6)
 
-	kerjsamaMOU := v1.Group("/kerjasamaMOU", customMiddleware.Authentication, customMiddleware.GrantAdminUmum)
+	kerjsamaMOU := v1.Group("/kerjasamaMOU", customMiddleware.Authentication)
 	kerjsamaIA.GET("", handler.GetAllKerjasamaMOUHandler)
 	kerjsamaMOU.GET("/:id", handler.GetKerjasamaMOAByIdHandler)
 	kerjsamaMOU.POST("", handler.InsertKerjasamaMOUHandler, customMiddleware.GrantAdminIKU6)
