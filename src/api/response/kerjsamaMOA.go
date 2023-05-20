@@ -1,6 +1,10 @@
 package response
 
-import "time"
+import (
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 type KerjasamaMOA struct {
 	ID              int               `json:"id"`
@@ -13,9 +17,17 @@ type KerjasamaMOA struct {
 	Mitra           string            `json:"mitra"`
 	Kegiatan        string            `json:"kegiatan"`
 	Status          string            `json:"status"`
-	TanggalAwal     time.Time         `json:"tanggal_awal"`
-	TanggalBerakhir time.Time         `json:"tanggal_akhir"`
+	TanggalAwal     string            `json:"tanggal_awal"`
+	TanggalBerakhir string            `json:"tanggal_akhir"`
 	Fakultas        FakultasReference `gorm:"foreignKey:IdFakultas" json:"fakultas"`
+}
+
+func (p *KerjasamaMOA) AfterFind(tx *gorm.DB) (err error) {
+	p.TanggalAwal = strings.Split(p.TanggalAwal, "T")[0]
+
+	p.TanggalBerakhir = strings.Split(p.TanggalBerakhir, "T")[0]
+
+	return
 }
 
 func (KerjasamaMOA) TableName() string {
