@@ -8,7 +8,6 @@ import (
 
 type KerjasamaIA struct {
 	IdProdi         int    `json:"id_prodi" validate:"required"`
-	JenisDokumen    string `json:"jenis_dokumen" validate:"required"`
 	NomorDokumen    string `json:"nomor_dokumen" validate:"required"`
 	JenisKerjasama  string `json:"jenis_kerjasama" validate:"required"`
 	Judul           string `json:"judul" validate:"required"`
@@ -32,7 +31,7 @@ func (r *KerjasamaIA) MapRequest() (*model.Kerjasama, error) {
 	}
 	return &model.Kerjasama{
 		IdProdi:         r.IdProdi,
-		JenisDokumen:    r.JenisDokumen,
+		JenisDokumen:    "Implementation Arrangement (IA)",
 		NomorDokumen:    r.NomorDokumen,
 		JenisKerjasama:  r.JenisKerjasama,
 		Judul:           r.Judul,

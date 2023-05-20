@@ -8,7 +8,6 @@ import (
 
 type KerjasamaMOA struct {
 	IdFakultas      int    `json:"id_fakultas" validate:"required"`
-	JenisDokumen    string `json:"jenis_dokumen" validate:"required"`
 	NomorDokumen    string `json:"nomor_dokumen" validate:"required"`
 	JenisKerjasama  string `json:"jenis_kerjasama" validate:"required"`
 	Judul           string `json:"judul" validate:"required"`
@@ -32,7 +31,7 @@ func (r *KerjasamaMOA) MapRequest() (*model.Kerjasama, error) {
 	}
 	return &model.Kerjasama{
 		IdFakultas:      r.IdFakultas,
-		JenisDokumen:    r.JenisDokumen,
+		JenisDokumen:    "Memorandum of Aggreement (MoA)",
 		NomorDokumen:    r.NomorDokumen,
 		JenisKerjasama:  r.JenisKerjasama,
 		Judul:           r.Judul,

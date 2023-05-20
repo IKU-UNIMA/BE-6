@@ -14,9 +14,6 @@ import (
 
 func GetAllProdiHandler(c echo.Context) error {
 	idFakultas := c.QueryParam("fakultas")
-	if !util.IsInteger(idFakultas) {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "id fakultas harus berupa angka"})
-	}
 
 	db := database.InitMySQL()
 	ctx := c.Request().Context()

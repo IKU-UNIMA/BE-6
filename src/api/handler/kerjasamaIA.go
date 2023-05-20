@@ -60,10 +60,7 @@ func GetAllKerjasamaIAHandler(c echo.Context) error {
 
 	var totalResult int64
 
-	// if err := db.WithContext(ctx).Order("id").Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Find(&result).Error; err != nil {
-	// 	return util.FailedResponse(http.StatusInternalServerError, nil)
-	// }
-	if err := db.WithContext(ctx).Debug().Table("kerjasama").Debug().Where(condition).Debug().Preload("Prodi").Debug().Find(&data).Count(&totalResult).Error; err != nil {
+	if err := db.WithContext(ctx).Debug().Table("kerjasama").Where(condition).Preload("Prodi").Find(&data).Count(&totalResult).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 

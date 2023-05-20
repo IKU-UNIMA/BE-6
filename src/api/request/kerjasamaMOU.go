@@ -7,7 +7,6 @@ import (
 )
 
 type KerjasamaMOU struct {
-	JenisDokumen    string `json:"jenis_dokumen" validate:"required"`
 	NomorDokumen    string `json:"nomor_dokumen" validate:"required"`
 	JenisKerjasama  string `json:"jenis_kerjasama" validate:"required"`
 	Judul           string `json:"judul" validate:"required"`
@@ -30,7 +29,7 @@ func (r *KerjasamaMOU) MapRequest() (*model.Kerjasama, error) {
 		return nil, errors.New("format tanggal salah")
 	}
 	return &model.Kerjasama{
-		JenisDokumen:    r.JenisDokumen,
+		JenisDokumen:    "Memorandum of Understanding (MoU)",
 		NomorDokumen:    r.NomorDokumen,
 		JenisKerjasama:  r.JenisKerjasama,
 		Judul:           r.Judul,

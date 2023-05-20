@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type MOUQueryParam struct {
+type mouQueryParam struct {
 	NomorDokumen string `query:"nomor_dokumen"`
 	Judul        string `query:"judul"`
 	Mitra        string `query:"mitra"`
@@ -20,7 +20,7 @@ type MOUQueryParam struct {
 }
 
 func GetAllKerjasamaMOUHandler(c echo.Context) error {
-	queryParams := &moaQueryParam{}
+	queryParams := &mouQueryParam{}
 	if err := (&echo.DefaultBinder{}).BindQueryParams(c, queryParams); err != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
@@ -52,10 +52,7 @@ func GetAllKerjasamaMOUHandler(c echo.Context) error {
 
 	var totalResult int64
 
-	// if err := db.WithContext(ctx).Order("id").Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Find(&result).Error; err != nil {
-	// 	return util.FailedResponse(http.StatusInternalServerError, nil)
-	// }
-	if err := db.WithContext(ctx).Table("kerjasama").Where(condition).Find(&data).Count(&totalResult).Error; err != nil {
+	if err := db.WithContext(ctx).Debug().Table("kerjasama").Where(condition).Find(&data).Count(&totalResult).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
