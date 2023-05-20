@@ -11,7 +11,7 @@ import (
 func GetId(c echo.Context) (int, error) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id < 1 {
-		return 0, FailedResponse(http.StatusBadRequest, map[string]string{"message": "id harus berupa angka lebih dari 1"})
+		return 0, FailedResponse(http.StatusBadRequest, map[string]string{"message": "id harus berupa angka lebih dari 0"})
 	}
 
 	return id, nil
