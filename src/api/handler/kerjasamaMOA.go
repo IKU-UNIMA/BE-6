@@ -60,7 +60,7 @@ func GetAllKerjasamaMOAHandler(c echo.Context) error {
 	// if err := db.WithContext(ctx).Order("id").Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Find(&result).Error; err != nil {
 	// 	return util.FailedResponse(http.StatusInternalServerError, nil)
 	// }
-	if err := db.WithContext(ctx).Table("kerjasama").Where(condition).Preload("Fakultas").Find(&data).Count(&totalResult).Error; err != nil {
+	if err := db.WithContext(ctx).Debug().Table("kerjasama").Where(condition).Preload("Fakultas").Find(&data).Count(&totalResult).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
