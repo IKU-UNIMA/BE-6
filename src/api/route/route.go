@@ -77,6 +77,11 @@ func InitServer() *echo.Echo {
 	MOU.POST("", handler.InsertKerjasamaMOUHandler, customMiddleware.GrantAdminIKU6)
 	MOU.PUT("/:id", handler.EditKerjasamaMOUHandler, customMiddleware.GrantAdminIKU6)
 	MOU.DELETE("/:id", handler.DeleteKerjasamaMOUHandler, customMiddleware.GrantAdminIKU6)
+
+	dashboard := v1.Group("/dashboard", customMiddleware.Authentication, customMiddleware.GrantAdminIKU6AndRektor)
+	dashboard.GET("/tahun/:tahun", handler.GetDashboardHandler)
+	dashboard.GET("/fakultas/:fakultas/:tahun", handler.GetDashboardByFakultasHandler)
+
 	return app
 
 }
