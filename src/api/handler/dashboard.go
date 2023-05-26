@@ -50,12 +50,14 @@ func GetDashboardHandler(c echo.Context) error {
 
 	data.Target = fmt.Sprintf("%.1f", util.RoundFloat(target))
 
-	query := `
+	conds := fmt.Sprintf("AND YEAR(tanggal_awal) <= %d AND YEAR(tanggal_berakhir) >= %d", params.Tahun, params.Tahun)
+	query := fmt.Sprintf(`
 	SELECT COUNT(DISTINCT id_prodi) AS jumlah_pencapaian FROM fakultas
 	LEFT JOIN prodi ON prodi.id_fakultas = fakultas.id
 	LEFT JOIN kerjasama ON kerjasama.id_prodi = prodi.id AND kerjasama.jenis_dokumen='Implementation Arrangement (IA)'
+		%s
 	GROUP BY fakultas.id ORDER BY fakultas.id
-	`
+	`, conds)
 
 	if err := db.WithContext(ctx).Raw(query).Find(&data.Detail).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
