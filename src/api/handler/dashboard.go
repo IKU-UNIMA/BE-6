@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"BE-6/src/api/request"
 	"BE-6/src/api/response"
 	"BE-6/src/config/database"
 	"BE-6/src/util"
@@ -132,4 +133,25 @@ func GetDashboardByFakultasHandler(c echo.Context) error {
 	data.Pencapaian = fmt.Sprintf("%.2f", pencapaian) + "%"
 
 	return util.SuccessResponse(c, http.StatusOK, data)
+}
+
+func InsertTargetHandler(c echo.Context) error {
+	req := &request.Target{}
+	if err := c.Bind(req); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+
+	db := database.InitMySQL()
+	ctx := c.Request().Context()
+	conds := fmt.Sprintf("bagian='%s' AND tahun=%d", util.IKU6, req.Tahun)
+
+	if err := db.WithContext(ctx).Where(conds).Save(req.MapRequest()).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	return util.SuccessResponse(c, http.StatusOK, nil)
 }
