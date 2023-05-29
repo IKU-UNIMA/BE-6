@@ -50,9 +50,17 @@ func GetAllKerjasamaMOUHandler(c echo.Context) error {
 
 	}
 
-	var totalResult int64
+	if err := db.WithContext(ctx).Debug().Table("kerjasama").
+		Where(condition).
+		Offset(util.CountOffset(queryParams.Page, limit)).
+		Limit(limit).Where(condition).
+		Find(&data).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
 
-	if err := db.WithContext(ctx).Debug().Table("kerjasama").Where(condition).Find(&data).Count(&totalResult).Error; err != nil {
+	var totalResult int64
+	if err := db.WithContext(ctx).Table("kerjasama").
+		Where(condition).Count(&totalResult).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 

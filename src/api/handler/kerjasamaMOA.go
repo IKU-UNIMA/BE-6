@@ -55,14 +55,23 @@ func GetAllKerjasamaMOAHandler(c echo.Context) error {
 
 	}
 
+	if err := db.WithContext(ctx).Debug().Table("kerjasama").
+		Where(condition).Preload("Fakultas").
+		Offset(util.CountOffset(queryParams.Page, limit)).
+		Limit(limit).Where(condition).
+		Find(&data).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
 	var totalResult int64
+	if err := db.WithContext(ctx).Table("kerjasama").
+		Where(condition).Count(&totalResult).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
 
 	// if err := db.WithContext(ctx).Order("id").Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Find(&result).Error; err != nil {
 	// 	return util.FailedResponse(http.StatusInternalServerError, nil)
 	// }
-	if err := db.WithContext(ctx).Debug().Table("kerjasama").Where(condition).Preload("Fakultas").Find(&data).Count(&totalResult).Error; err != nil {
-		return util.FailedResponse(http.StatusInternalServerError, nil)
-	}
 
 	return util.SuccessResponse(c, http.StatusOK, util.Pagination{
 		Limit:       limit,
