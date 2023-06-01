@@ -8,6 +8,7 @@ import (
 	"BE-6/src/config/env/storage"
 	"BE-6/src/model"
 	"BE-6/src/util"
+	"BE-6/src/util/validation"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -66,7 +67,7 @@ func GetAllKerjasamaIAHandler(c echo.Context) error {
 	// }
 
 	if err := db.WithContext(ctx).Debug().Table("kerjasama").
-		Where(condition).Preload("Prodi").
+		Where(condition).Preload("Prodi").Preload("Mitra").
 		Offset(util.CountOffset(queryParams.Page, limit)).
 		Limit(limit).Where(condition).
 		Find(&data).Error; err != nil {
@@ -110,7 +111,7 @@ func GetKerjasamaIAByIdHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	result := &response.KerjasamaIA{}
 
-	if err := db.WithContext(ctx).Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").First(result, id).Error; err != nil {
+	if err := db.WithContext(ctx).Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Preload("Mitra").First(result, id).Error; err != nil {
 		if err.Error() == util.NOT_FOUND_ERROR {
 			return util.FailedResponse(http.StatusNotFound, nil)
 		}
@@ -224,7 +225,6 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 
 	db := database.InitMySQL()
 	ctx := c.Request().Context()
-
 	dokumen, _ := c.FormFile("file")
 	if dokumen == nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "file tidak boleh kosong"})
@@ -234,8 +234,18 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
+	mitra := []model.MitraKerjasama{}
+	for _, v := range request.Mitra {
+		if err := validation.ValidateKerjasama(&v); err != nil {
+			return err
+		}
+
+		mitra = append(mitra, *v.MapRequestToKerjasama())
+	}
+
 	dDokumen, err := storage.CreateFile(dokumen, env.GetDokumenFolderId())
 	if err != nil {
+		println(err.Error())
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
@@ -243,6 +253,7 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 	if err != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
+	data.Mitra = mitra
 
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
@@ -257,109 +268,65 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 	return util.SuccessResponse(c, http.StatusCreated, data.ID)
 }
 
-// func EditKerjasamaIAHandler(c echo.Context) error {
-// 	id, err := util.GetId(c)
-// 	if err != nil {
-// 		return err
-// 	}
-	
-// 	request := &request.KerjasamaIA{}
-// 	if err := c.Bind(request); err != nil {
-// 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-// 	}
+func EditKerjasamaIAHandler(c echo.Context) error {
+	id, err := util.GetId(c)
+	if err != nil {
+		return err
+	}
 
-// 	if err := c.Validate(request); err != nil {
-// 		return err
-// 	}
+	request := &request.KerjasamaIA{}
+	if err := c.Bind(request); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
 
-// 	db := database.InitMySQL()
-// 	ctx := c.Request().Context()
+	if err := c.Validate(request); err != nil {
+		return err
+	}
 
-// 	if err := db.WithContext(ctx).First(new(model.Kerjasama), id).Error; err != nil {
-// 		if err.Error() == util.NOT_FOUND_ERROR {
-// 			return util.FailedResponse(http.StatusNotFound, nil)
-// 		}
+	db := database.InitMySQL()
+	ctx := c.Request().Context()
 
-// 		return util.FailedResponse(http.StatusInternalServerError, nil)
-// 	}
-// 	data, errMapping := request.MapRequest(dokumen)
-// 	if errMapping != nil {
-// 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
-// 	}
-// 	if err := db.WithContext(ctx).Where("id", id).Updates(data).Error; err != nil {
-// 		if err != nil {
-// 			if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-// 				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
-// 			}
+	if err := db.WithContext(ctx).First(new(model.Kerjasama), id).Error; err != nil {
+		if err.Error() == util.NOT_FOUND_ERROR {
+			return util.FailedResponse(http.StatusNotFound, nil)
+		}
 
-// 			return util.FailedResponse(http.StatusInternalServerError, nil)
-// 		}
-// 	}
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+	data, errMapping := request.MapRequest()
+	if errMapping != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
+	}
+	if err := db.WithContext(ctx).Where("id", id).Updates(data).Error; err != nil {
+		if err != nil {
+			if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
+				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
+			}
 
-// 	return util.SuccessResponse(c, http.StatusOK, nil)
-// }
+			return util.FailedResponse(http.StatusInternalServerError, nil)
+		}
+	}
 
-// func DeleteKerjasamaIAHandler(c echo.Context) error {
-// 	id, err := util.GetId(c)
-// 	if err != nil {
-// 		return err
-// 	}
+	return util.SuccessResponse(c, http.StatusOK, nil)
+}
 
-// 	db := database.InitMySQL()
-// 	ctx := c.Request().Context()
+func DeleteKerjasamaIAHandler(c echo.Context) error {
+	id, err := util.GetId(c)
+	if err != nil {
+		return err
+	}
 
-// 	query := db.WithContext(ctx).Delete(new(model.Kerjasama), id)
-// 	if query.Error == nil && query.RowsAffected < 1 {
-// 		return util.FailedResponse(http.StatusNotFound, nil)
-// 	}
+	db := database.InitMySQL()
+	ctx := c.Request().Context()
 
-// 	if query.Error != nil {
-// 		return util.FailedResponse(http.StatusInternalServerError, nil)
-// 	}
+	query := db.WithContext(ctx).Delete(new(model.Kerjasama), id)
+	if query.Error == nil && query.RowsAffected < 1 {
+		return util.FailedResponse(http.StatusNotFound, nil)
+	}
 
-// 	return util.SuccessResponse(c, http.StatusOK, nil)
-// }
+	if query.Error != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
 
-// func EditBeritaAcaraHandler(c echo.Context) error {
-// 	id, err := util.GetId(c)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	db := database.InitMySQL()
-// 	ctx := c.Request().Context()
-
-// 	dokumenKerjasama, _ := c.FormFile("berita_acara")
-// 	if dokumenKerjasama == nil {
-// 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "file tidak boleh kosong"})
-// 	}
-
-// 	if err := util.CheckFileIsPDF(dokumenKerjasama); err != nil {
-// 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-// 	}
-
-// 	dDokumenKerjasama, errDrive := storage.CreateFile(dokumenKerjasama, env.GetDokumenFolderId())
-// 	if errDrive != nil {
-// 		return util.FailedResponse(http.StatusInternalServerError, nil)
-// 	}
-
-// 	dokumenKerjasamaUrl := ""
-// 	if err := db.WithContext(ctx).Table("kampus_merdeka").Select("berita_acara").
-// 		Where("id", id).Scan(&dokumenKerjasamaUrl).Error; err != nil {
-// 		storage.DeleteFile(dDokumenKerjasama.Id)
-// 		return util.FailedResponse(http.StatusInternalServerError, nil)
-// 	}
-
-// 	if err := db.WithContext(ctx).Table("kampus_merdeka").Where("id", id).
-// 		Update("berita_acara", util.CreateFileUrl(dDokumenKerjasama.Id)).Error; err != nil {
-// 		storage.DeleteFile(dDokumenKerjasama.Id)
-// 		return util.FailedResponse(http.StatusInternalServerError, nil)
-// 	}
-
-// 	if dokumenKerjasamaUrl != "" {
-// 		dokumenKerjasamaId := util.GetFileIdFromUrl(dokumenKerjasamaUrl)
-// 		storage.DeleteFile(dokumenKerjasamaId)
-// 	}
-
-// 	return util.SuccessResponse(c, http.StatusOK, nil)
-// }
+	return util.SuccessResponse(c, http.StatusOK, nil)
+}

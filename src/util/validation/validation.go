@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"BE-6/src/api/request"
 	"BE-6/src/util"
 	"net/http"
 	"reflect"
@@ -11,6 +12,19 @@ import (
 
 type CustomValidator struct {
 	Validator *validator.Validate
+}
+
+func ValidateKerjasama(req *request.MitraKerjasama) error {
+	errs := map[string]string{}
+	if req.Penandatangan == "" {
+		errs["message"] = "penandatangan wajib diisi"
+	}
+
+	if len(errs) < 1 {
+		return nil
+	}
+
+	return util.FailedResponse(http.StatusBadRequest, errs)
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
