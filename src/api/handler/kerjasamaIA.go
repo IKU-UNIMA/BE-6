@@ -209,13 +209,13 @@ func ImportKerjasamaIAHandler(c echo.Context) error {
 
 func InsertKerjasamaIAHandler(c echo.Context) error {
 	request := &request.KerjasamaIA{}
-	reqData := c.FormValue("mitra")
-
-	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
 	if err := c.Bind(request); err != nil {
 		return util.FailedResponse(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()})
+	}
+
+	reqData := c.FormValue("mitra")
+	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
 	if err := c.Validate(request); err != nil {
@@ -262,7 +262,7 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 // 	if err != nil {
 // 		return err
 // 	}
-	
+
 // 	request := &request.KerjasamaIA{}
 // 	if err := c.Bind(request); err != nil {
 // 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
