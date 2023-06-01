@@ -28,6 +28,10 @@ type iaQueryParam struct {
 	Page         int    `query:"page"`
 }
 
+func GetDasarKerjasamaIAHandler(c echo.Context) error {
+
+}
+
 func GetAllKerjasamaIAHandler(c echo.Context) error {
 	queryParams := &iaQueryParam{}
 	if err := (&echo.DefaultBinder{}).BindQueryParams(c, queryParams); err != nil {
