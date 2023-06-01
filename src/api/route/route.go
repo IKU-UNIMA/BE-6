@@ -61,8 +61,8 @@ func InitServer() *echo.Echo {
 	IA.GET("", handler.GetAllKerjasamaIAHandler)
 	IA.GET("/:id", handler.GetKerjasamaIAByIdHandler)
 	IA.POST("", handler.InsertKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
-	IA.PUT("/:id", handler.EditKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
-	IA.DELETE("/:id", handler.DeleteKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
+	// IA.PUT("/:id", handler.EditKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
+	// IA.DELETE("/:id", handler.DeleteKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
 
 	MOA := v1.Group("/MOA", customMiddleware.Authentication)
 	MOA.GET("", handler.GetAllKerjasamaMOAHandler)

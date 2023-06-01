@@ -18,6 +18,7 @@ type KerjasamaMOU struct {
 	Status          string `json:"status"`
 	TanggalAwal     string `json:"tanggal_awal"`
 	TanggalBerakhir string `json:"tanggal_akhir"`
+	Dokumen         string `json:"dokumen"`
 }
 
 func (p *KerjasamaMOU) AfterFind(tx *gorm.DB) (err error) {

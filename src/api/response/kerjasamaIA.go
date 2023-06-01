@@ -19,6 +19,7 @@ type KerjasamaIA struct {
 	Status          string         `json:"status"`
 	TanggalAwal     string         `json:"tanggal_awal"`
 	TanggalBerakhir string         `json:"tanggal_akhir"`
+	Dokumen         string         `json:"dokumen"`
 	Prodi           ProdiReference `gorm:"foreignKey:IdProdi" json:"prodi"`
 }
 

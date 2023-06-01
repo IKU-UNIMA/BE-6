@@ -7,16 +7,16 @@ import (
 )
 
 type KerjasamaMOA struct {
-	IdFakultas      int    `json:"id_fakultas" validate:"required"`
-	NomorDokumen    string `json:"nomor_dokumen" validate:"required"`
-	JenisKerjasama  string `json:"jenis_kerjasama" validate:"required"`
-	Judul           string `json:"judul" validate:"required"`
-	Keterangan      string `json:"keterangan"`
-	Mitra           string `json:"mitra"`
-	Kegiatan        string `json:"kegiatan" validate:"required"`
-	Status          string `json:"status" validate:"required"`
-	TanggalAwal     string `json:"tanggal_awal" validate:"required"`
-	TanggalBerakhir string `json:"tanggal_akhir" validate:"required"`
+	IdFakultas      int              `json:"id_fakultas" validate:"required"`
+	NomorDokumen    string           `json:"nomor_dokumen" validate:"required"`
+	JenisKerjasama  string           `json:"jenis_kerjasama" validate:"required"`
+	Judul           string           `json:"judul" validate:"required"`
+	Keterangan      string           `json:"keterangan"`
+	Mitra           []MitraKerjasama `json:"mitra"`
+	Kegiatan        string           `json:"kegiatan" validate:"required"`
+	Status          string           `json:"status" validate:"required"`
+	TanggalAwal     string           `json:"tanggal_awal" validate:"required"`
+	TanggalBerakhir string           `json:"tanggal_akhir" validate:"required"`
 }
 
 func (r *KerjasamaMOA) MapRequest() (*model.Kerjasama, error) {
@@ -36,7 +36,6 @@ func (r *KerjasamaMOA) MapRequest() (*model.Kerjasama, error) {
 		JenisKerjasama:  r.JenisKerjasama,
 		Judul:           r.Judul,
 		Keterangan:      r.Keterangan,
-		Mitra:           r.Mitra,
 		Kegiatan:        r.Kegiatan,
 		Status:          r.Status,
 		TanggalAwal:     tanggalAwal,

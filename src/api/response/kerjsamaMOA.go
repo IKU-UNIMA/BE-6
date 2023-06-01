@@ -19,6 +19,7 @@ type KerjasamaMOA struct {
 	Status          string            `json:"status"`
 	TanggalAwal     string            `json:"tanggal_awal"`
 	TanggalBerakhir string            `json:"tanggal_akhir"`
+	Dokumen         string            `json:"dokumen"`
 	Fakultas        FakultasReference `gorm:"foreignKey:IdFakultas" json:"fakultas"`
 }
 
