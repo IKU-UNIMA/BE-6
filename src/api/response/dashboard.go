@@ -2,11 +2,16 @@ package response
 
 type (
 	Dashboard struct {
-		Target     string                       `json:"target"`
-		Total      int                          `json:"total"`
-		TotalProdi int                          `json:"total_prodi"`
-		Pencapaian string                       `json:"pencapaian"`
-		Detail     []DashboardDetailPerFakultas `json:"detail"`
+		Mou         int                          `json:"mou"`
+		Moa         int                          `json:"moa"`
+		Ia          int                          `json:"ia"`
+		LuarNegeri  int                          `json:"luar_negeri"`
+		DalamNegeri int                          `json:"dalam_negeri"`
+		Target      string                       `json:"target"`
+		Total       int                          `json:"total"`
+		TotalProdi  int                          `json:"total_prodi"`
+		Pencapaian  string                       `json:"pencapaian"`
+		Detail      []DashboardDetailPerFakultas `json:"detail"`
 	}
 
 	DashboardDetailPerFakultas struct {

@@ -25,6 +25,23 @@ func GetDashboardHandler(c echo.Context) error {
 	db := database.InitMySQL()
 	ctx := c.Request().Context()
 	data := &response.Dashboard{}
+
+	conds := fmt.Sprintf("YEAR(tanggal_awal) <= %d AND YEAR(tanggal_berakhir) >= %d", params.Tahun, params.Tahun)
+	dashboardQuery := fmt.Sprintf(`
+	SELECT
+		SUM(IF(jenis_dokumen='Memorandum of Understanding (MoU)', 1, 0))) AS mou,
+		SUM(IF(jenis_dokumen='Memorandum of Agreement (MoA)', 1, 0))) AS moa,
+		SUM(IF(jenis_dokumen='Implementation Arrangement (IA)', 1, 0))) AS ia,
+		SUM(IF(jenis_kerjasama='Kerjasama Luar Negeri', 1, 0))) AS luar_negeri,
+		SUM(IF(jenis_kerjasama='Kerjasama Dalam Negeri', 1, 0))) AS dalam_negeri
+	FROM kerjasama
+	WHERE %s
+	`, conds)
+
+	if err := db.WithContext(ctx).Raw(dashboardQuery).Find(data).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
 	prodi := []struct {
 		ID       int
 		Fakultas string
@@ -50,12 +67,11 @@ func GetDashboardHandler(c echo.Context) error {
 
 	data.Target = fmt.Sprintf("%.1f", util.RoundFloat(target))
 
-	conds := fmt.Sprintf("AND YEAR(tanggal_awal) <= %d AND YEAR(tanggal_berakhir) >= %d", params.Tahun, params.Tahun)
 	query := fmt.Sprintf(`
 	SELECT COUNT(DISTINCT id_prodi) AS jumlah_pencapaian FROM fakultas
 	LEFT JOIN prodi ON prodi.id_fakultas = fakultas.id
 	LEFT JOIN kerjasama ON kerjasama.id_prodi = prodi.id AND kerjasama.jenis_dokumen='Implementation Arrangement (IA)'
-		%s
+		AND %s
 	GROUP BY fakultas.id ORDER BY fakultas.id
 	`, conds)
 
