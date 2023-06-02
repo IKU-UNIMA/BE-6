@@ -29,7 +29,25 @@ type iaQueryParam struct {
 }
 
 func GetDasarKerjasamaIAHandler(c echo.Context) error {
+	queryParams := &iaQueryParam{}
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, queryParams); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+	condition := "jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)')"
 
+	if queryParams.Judul != "" {
+		condition += " AND UPPER(judul) LIKE '%" + strings.ToUpper(queryParams.Judul) + "%'"
+	}
+
+	db := database.InitMySQL()
+	ctx := c.Request().Context()
+	data := []response.DasarKerjasama{}
+
+	if err := db.WithContext(ctx).Where(condition).Find(&data).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	return util.SuccessResponse(c, http.StatusOK, data)
 }
 
 func GetAllKerjasamaIAHandler(c echo.Context) error {
@@ -297,11 +315,11 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
-	data, errMapping := request.MapRequest()
+	data, errMapping := request.MapRequest("")
 	if errMapping != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
 	}
-	if err := db.WithContext(ctx).Where("id", id).Updates(data).Error; err != nil {
+	if err := db.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
 		if err != nil {
 			if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
 				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})

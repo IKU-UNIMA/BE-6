@@ -21,6 +21,29 @@ type moaQueryParam struct {
 	Page         int    `query:"page"`
 }
 
+func GetDasarKerjasamaMOAHandler(c echo.Context) error {
+	queryParams := &iaQueryParam{}
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, queryParams); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	condition := "jenis_dokumen = 'Memorandum of Understanding (MoU)'"
+
+	if queryParams.Judul != "" {
+		condition += " AND UPPER(judul) LIKE '%" + strings.ToUpper(queryParams.Judul) + "%'"
+	}
+
+	db := database.InitMySQL()
+	ctx := c.Request().Context()
+	data := []response.DasarKerjasama{}
+
+	if err := db.WithContext(ctx).Where(condition).Find(&data).Error; err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	return util.SuccessResponse(c, http.StatusOK, data)
+}
+
 func GetAllKerjasamaMOAHandler(c echo.Context) error {
 	queryParams := &moaQueryParam{}
 	if err := (&echo.DefaultBinder{}).BindQueryParams(c, queryParams); err != nil {
