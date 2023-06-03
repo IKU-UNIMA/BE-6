@@ -4,7 +4,7 @@ import (
 	"BE-6/src/api/route"
 	"BE-6/src/config/database"
 	"BE-6/src/config/env"
-	"BE-6/src/config/env/storage"
+	"BE-6/src/config/storage"
 
 	"github.com/joho/godotenv"
 )

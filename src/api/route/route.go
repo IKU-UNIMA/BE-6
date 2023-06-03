@@ -57,7 +57,10 @@ func InitServer() *echo.Echo {
 	rektor.PUT("/:id", handler.EditRektorHandler)
 	rektor.DELETE("/:id", handler.DeleteRektorHandler)
 
-	IA := v1.Group("/IA", customMiddleware.Authentication)
+	kerjasama := v1.Group("/kerjasama", customMiddleware.Authentication)
+	kerjasama.PATCH("/dokumen/:id", handler.EditDokumenKerjasamaHandler)
+
+	IA := kerjasama.Group("/IA")
 	IA.GET("", handler.GetAllKerjasamaIAHandler)
 	IA.GET("/:id", handler.GetKerjasamaIAByIdHandler)
 	IA.GET("/dasar-kerjasama", handler.GetDasarKerjasamaIAHandler)

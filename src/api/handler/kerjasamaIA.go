@@ -5,7 +5,7 @@ import (
 	"BE-6/src/api/response"
 	"BE-6/src/config/database"
 	"BE-6/src/config/env"
-	"BE-6/src/config/env/storage"
+	"BE-6/src/config/storage"
 	"BE-6/src/model"
 	"BE-6/src/util"
 	"BE-6/src/util/validation"
@@ -267,7 +267,6 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 
 	dDokumen, err := storage.CreateFile(dokumen, env.GetDokumenFolderId())
 	if err != nil {
-		println(err.Error())
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
@@ -306,6 +305,7 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	}
 
 	db := database.InitMySQL()
+	tx := db.Begin()
 	ctx := c.Request().Context()
 
 	if err := db.WithContext(ctx).First(new(model.Kerjasama), id).Error; err != nil {
@@ -319,14 +319,39 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	if errMapping != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
 	}
-	if err := db.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
-		if err != nil {
-			if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
-			}
-
-			return util.FailedResponse(http.StatusInternalServerError, nil)
+	if err := tx.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
+		tx.Rollback()
+		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
 		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	reqData := c.FormValue("mitra")
+
+	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	mitra := []model.MitraKerjasama{}
+	for _, v := range request.Mitra {
+		if err := validation.ValidateKerjasama(&v); err != nil {
+			return err
+		}
+
+		mitra = append(mitra, *v.MapRequestToKerjasama())
+	}
+
+	ia := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
+		tx.Rollback()
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
 	return util.SuccessResponse(c, http.StatusOK, nil)
