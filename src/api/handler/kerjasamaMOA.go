@@ -4,8 +4,12 @@ import (
 	"BE-6/src/api/request"
 	"BE-6/src/api/response"
 	"BE-6/src/config/database"
+	"BE-6/src/config/env"
+	"BE-6/src/config/storage"
 	"BE-6/src/model"
 	"BE-6/src/util"
+	"BE-6/src/util/validation"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -127,13 +131,21 @@ func GetKerjasamaMOAByIdHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	result := &response.KerjasamaMOA{}
 
-	if err := db.WithContext(ctx).Where("jenis_dokumen", "Memorandum of Aggreement (MoA)").Preload("Fakultas").First(result, id).Error; err != nil {
+	if err := db.WithContext(ctx).Where("jenis_dokumen", "Memorandum of Aggreement (MoA)").Preload("Fakultas").Preload("Mitra").First(result, id).Error; err != nil {
 		if err.Error() == util.NOT_FOUND_ERROR {
 			return util.FailedResponse(http.StatusNotFound, nil)
 		}
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
+
+	newResponse := response.DasarKerjasama{}
+
+	if err := db.WithContext(ctx).Debug().Where("jenis_dokumen = 'Memorandum of Understanding (MoU)' AND id=?", result.IdDasarDokumen).Find(&newResponse).Error; err != nil {
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+	result.DasarDokumenKerjasama = newResponse
 
 	return util.SuccessResponse(c, http.StatusOK, result)
 }
@@ -161,6 +173,11 @@ func GetKerjasamaMOAByIdHandler(c echo.Context) error {
 
 func InsertKerjasamaMOAHandler(c echo.Context) error {
 	request := &request.KerjasamaMOA{}
+	reqData := c.FormValue("mitra")
+
+	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
 	if err := c.Bind(request); err != nil {
 		return util.FailedResponse(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()})
 	}
@@ -171,17 +188,51 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 
 	db := database.InitMySQL()
 	ctx := c.Request().Context()
-
-	data, errMapping := request.MapRequest()
-	if errMapping != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
+	dokumen, _ := c.FormFile("file")
+	if dokumen == nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "file tidak boleh kosong"})
 	}
+
+	if err := util.CheckFileIsPDF(dokumen); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	if err := db.WithContext(ctx).Where("jenis_dokumen = 'Memorandum of Understanding (MoU)' AND id=?", request.DasarDokumenKerjasama).First(new(model.Kerjasama)).Error; err != nil {
+		if err.Error() == util.NOT_FOUND_ERROR {
+			return util.FailedResponse(http.StatusNotFound, nil)
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	mitra := []model.MitraKerjasama{}
+	for _, v := range request.Mitra {
+		if err := validation.ValidateKerjasama(&v); err != nil {
+			return err
+		}
+
+		mitra = append(mitra, *v.MapRequestToKerjasama())
+	}
+
+	dDokumen, err := storage.CreateFile(dokumen, env.GetDokumenFolderId())
+	if err != nil {
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	data, err := request.MapRequest(util.CreateFileUrl(dDokumen.Id))
+	if err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+	data.Mitra = mitra
+
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat duplikasi"})
 		}
 
-		return util.FailedResponse(http.StatusInternalServerError, nil)
+		storage.DeleteFile(dDokumen.Id)
+
+		return nil
 	}
 
 	return util.SuccessResponse(c, http.StatusCreated, data.ID)
@@ -203,6 +254,7 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 	}
 
 	db := database.InitMySQL()
+	tx := db.Begin()
 	ctx := c.Request().Context()
 
 	if err := db.WithContext(ctx).First(new(model.Kerjasama), id).Error; err != nil {
@@ -212,18 +264,52 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
-	data, errMapping := request.MapRequest()
+
+	if err := db.WithContext(ctx).Where("jenis_dokumen = 'Memorandum of Understanding (MoU)' AND id=?", request.DasarDokumenKerjasama).First(new(model.Kerjasama)).Error; err != nil {
+		if err.Error() == util.NOT_FOUND_ERROR {
+			return util.FailedResponse(http.StatusNotFound, nil)
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	data, errMapping := request.MapRequest("")
 	if errMapping != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
 	}
-	if err := db.WithContext(ctx).Where("id", id).Updates(data).Error; err != nil {
-		if err != nil {
-			if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
-			}
-
-			return util.FailedResponse(http.StatusInternalServerError, nil)
+	if err := tx.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
+		tx.Rollback()
+		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
 		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	reqData := c.FormValue("mitra")
+
+	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	mitra := []model.MitraKerjasama{}
+	for _, v := range request.Mitra {
+		if err := validation.ValidateKerjasama(&v); err != nil {
+			return err
+		}
+
+		mitra = append(mitra, *v.MapRequestToKerjasama())
+	}
+
+	ia := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
+		tx.Rollback()
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
 	return util.SuccessResponse(c, http.StatusOK, nil)
