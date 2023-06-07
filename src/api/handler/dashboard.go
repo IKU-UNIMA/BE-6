@@ -29,11 +29,11 @@ func GetDashboardHandler(c echo.Context) error {
 	conds := fmt.Sprintf("YEAR(tanggal_awal) <= %d AND YEAR(tanggal_berakhir) >= %d", params.Tahun, params.Tahun)
 	dashboardQuery := fmt.Sprintf(`
 	SELECT
-		SUM(IF(jenis_dokumen='Memorandum of Understanding (MoU)', 1, 0))) AS mou,
-		SUM(IF(jenis_dokumen='Memorandum of Agreement (MoA)', 1, 0))) AS moa,
-		SUM(IF(jenis_dokumen='Implementation Arrangement (IA)', 1, 0))) AS ia,
-		SUM(IF(jenis_kerjasama='Kerjasama Luar Negeri', 1, 0))) AS luar_negeri,
-		SUM(IF(jenis_kerjasama='Kerjasama Dalam Negeri', 1, 0))) AS dalam_negeri
+		SUM(IF(jenis_dokumen='Memorandum of Understanding (MoU)', 1, 0)) AS mou,
+		SUM(IF(jenis_dokumen='Memorandum of Agreement (MoA)', 1, 0)) AS moa,
+		SUM(IF(jenis_dokumen='Implementation Arrangement (IA)', 1, 0)) AS ia,
+		SUM(IF(jenis_kerjasama='Kerjasama Luar Negeri', 1, 0)) AS luar_negeri,
+		SUM(IF(jenis_kerjasama='Kerjasama Dalam Negeri', 1, 0)) AS dalam_negeri
 	FROM kerjasama
 	WHERE %s
 	`, conds)

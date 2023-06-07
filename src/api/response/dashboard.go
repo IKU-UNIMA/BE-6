@@ -11,7 +11,7 @@ type (
 		Total       int                          `json:"total"`
 		TotalProdi  int                          `json:"total_prodi"`
 		Pencapaian  string                       `json:"pencapaian"`
-		Detail      []DashboardDetailPerFakultas `json:"detail"`
+		Detail      []DashboardDetailPerFakultas `gorm:"-" json:"detail"`
 	}
 
 	DashboardDetailPerFakultas struct {
