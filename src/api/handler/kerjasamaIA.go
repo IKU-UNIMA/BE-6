@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -111,17 +110,6 @@ func GetAllKerjasamaIAHandler(c echo.Context) error {
 	})
 }
 
-// func GetAllKerjasamaIAHandler(c echo.Context) error {
-// 	db := database.InitMySQL()
-// 	ctx := c.Request().Context()
-// 	result := []response.KerjasamaIA{}
-
-// 	if err := db.WithContext(ctx).Order("id").Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Find(&result).Error; err != nil {
-// 		return util.FailedResponse(http.StatusInternalServerError, nil)
-// 	}
-
-// 	return util.SuccessResponse(c, http.StatusOK, result)
-// }
 
 func GetKerjasamaIAByIdHandler(c echo.Context) error {
 	id, err := util.GetId(c)
@@ -140,6 +128,14 @@ func GetKerjasamaIAByIdHandler(c echo.Context) error {
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
+
+	newResponse := response.DasarKerjasama{}
+
+	if err := db.WithContext(ctx).Debug().Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", result.IdDasarDokumen).Find(&newResponse).Error; err != nil {
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+	result.DasarDokumenKerjasama = newResponse
 
 	return util.SuccessResponse(c, http.StatusOK, result)
 }
@@ -199,20 +195,14 @@ func ImportKerjasamaIAHandler(c echo.Context) error {
 	}
 
 	for i := 1; i < len(rows); i++ {
-		idProdi, err := strconv.Atoi(rows[i][0])
-		if err != nil {
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("kode prodi pada baris ke-%d tidak valid", i)})
-		}
 
 		data = append(data, model.Kerjasama{
-			IdProdi:      idProdi,
 			JenisDokumen: rows[i][1],
 			NomorDokumen: rows[i][2],
 			Judul:        rows[i][3],
 			Keterangan:   rows[i][4],
-			// Mitra:        rows[i][5],
-			Kegiatan: rows[i][6],
-			Status:   rows[i][7],
+			Kegiatan:     rows[i][6],
+			Status:       rows[i][7],
 		})
 	}
 
@@ -254,6 +244,14 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 
 	if err := util.CheckFileIsPDF(dokumen); err != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	if err := db.WithContext(ctx).Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).First(new(model.Kerjasama)).Error; err != nil {
+		if err.Error() == util.NOT_FOUND_ERROR {
+			return util.FailedResponse(http.StatusNotFound, nil)
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
 	mitra := []model.MitraKerjasama{}
@@ -315,6 +313,15 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
+
+	if err := db.WithContext(ctx).Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).First(new(model.Kerjasama)).Error; err != nil {
+		if err.Error() == util.NOT_FOUND_ERROR {
+			return util.FailedResponse(http.StatusNotFound, nil)
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
 	data, errMapping := request.MapRequest("")
 	if errMapping != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})

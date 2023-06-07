@@ -58,17 +58,17 @@ func InitServer() *echo.Echo {
 	rektor.DELETE("/:id", handler.DeleteRektorHandler)
 
 	kerjasama := v1.Group("/kerjasama", customMiddleware.Authentication)
-	kerjasama.PATCH("/dokumen/:id", handler.EditDokumenKerjasamaHandler)
+	kerjasama.PATCH("/:id/dokumen", handler.EditDokumenKerjasamaHandler)
 
 	IA := kerjasama.Group("/IA")
 	IA.GET("", handler.GetAllKerjasamaIAHandler)
 	IA.GET("/:id", handler.GetKerjasamaIAByIdHandler)
 	IA.GET("/dasar-kerjasama", handler.GetDasarKerjasamaIAHandler)
 	IA.POST("", handler.InsertKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
-	// IA.PUT("/:id", handler.EditKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
+	IA.PUT("/:id", handler.EditKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
 	IA.DELETE("/:id", handler.DeleteKerjasamaIAHandler, customMiddleware.GrantAdminIKU6)
 
-	MOA := v1.Group("/MOA", customMiddleware.Authentication)
+	MOA := kerjasama.Group("/MOA")
 	MOA.GET("", handler.GetAllKerjasamaMOAHandler)
 	MOA.GET("/:id", handler.GetKerjasamaMOAByIdHandler)
 	MOA.GET("/dasar-kerjasama", handler.GetDasarKerjasamaMOAHandler)
@@ -76,7 +76,7 @@ func InitServer() *echo.Echo {
 	MOA.PUT("/:id", handler.EditKerjasamaMOAHandler, customMiddleware.GrantAdminIKU6)
 	MOA.DELETE("/:id", handler.DeleteKerjasamaMOAHandler, customMiddleware.GrantAdminIKU6)
 
-	MOU := v1.Group("/MOU", customMiddleware.Authentication)
+	MOU := kerjasama.Group("/MOU")
 	MOU.GET("", handler.GetAllKerjasamaMOUHandler)
 	MOU.GET("/:id", handler.GetKerjasamaMOUByIdHandler)
 	MOU.POST("", handler.InsertKerjasamaMOUHandler, customMiddleware.GrantAdminIKU6)
