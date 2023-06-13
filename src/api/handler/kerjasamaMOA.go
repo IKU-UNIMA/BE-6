@@ -183,7 +183,7 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 		return err
 	}
 
-	if &request.Mitra != nil {
+	if reqData != "" {
 		json.Unmarshal([]byte(reqData), &request.Mitra)
 
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
