@@ -110,7 +110,6 @@ func GetAllKerjasamaIAHandler(c echo.Context) error {
 	})
 }
 
-
 func GetKerjasamaIAByIdHandler(c echo.Context) error {
 	id, err := util.GetId(c)
 	if err != nil {
@@ -337,8 +336,10 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 
 	reqData := c.FormValue("mitra")
 
-	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	if reqData != "" {
+		json.Unmarshal([]byte(reqData), &request.Mitra)
+
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
 	}
 
 	mitra := []model.MitraKerjasama{}
