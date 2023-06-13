@@ -175,15 +175,18 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 	request := &request.KerjasamaMOA{}
 	reqData := c.FormValue("mitra")
 
-	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
 	if err := c.Bind(request); err != nil {
 		return util.FailedResponse(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()})
 	}
 
 	if err := c.Validate(request); err != nil {
 		return err
+	}
+
+	if &request.Mitra != nil {
+		json.Unmarshal([]byte(reqData), &request.Mitra)
+
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
 	}
 
 	db := database.InitMySQL()
