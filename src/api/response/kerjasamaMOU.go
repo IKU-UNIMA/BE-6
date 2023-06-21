@@ -15,7 +15,6 @@ type KerjasamaMOU struct {
 	Keterangan       string           `json:"keterangan"`
 	Mitra            []MitraKerjasama `gorm:"foreignKey:IdKerjasama" json:"mitra"`
 	Kegiatan         string           `json:"kegiatan"`
-	KategoriKegiatan string           `json:"kategori_kegiatan"`
 	Status           string           `json:"status"`
 	TanggalAwal      string           `json:"tanggal_awal"`
 	TanggalBerakhir  string           `json:"tanggal_akhir"`

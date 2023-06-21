@@ -15,7 +15,6 @@ type KerjasamaMOA struct {
 	Keterangan            string `form:"keterangan"`
 	Mitra                 []MitraKerjasama
 	Kegiatan              string `form:"kegiatan" validate:"required"`
-	KategoriKegiatan      string `form:"kategori_kegiatan" validate:"required"`
 	Status                string `form:"status" validate:"required"`
 	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
 	TanggalBerakhir       string `form:"tanggal_akhir" validate:"required"`
@@ -40,7 +39,6 @@ func (r *KerjasamaMOA) MapRequest(dokumen string) (*model.Kerjasama, error) {
 		Judul:            r.Judul,
 		Keterangan:       r.Keterangan,
 		Kegiatan:         r.Kegiatan,
-		KategoriKegiatan: r.KategoriKegiatan,
 		Status:           r.Status,
 		TanggalAwal:      tanggalAwal,
 		TanggalBerakhir:  tanggalBerakhir,

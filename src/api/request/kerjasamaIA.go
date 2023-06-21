@@ -15,7 +15,6 @@ type KerjasamaIA struct {
 	Keterangan            string `form:"keterangan"`
 	Mitra                 []MitraKerjasama
 	Kegiatan              string `form:"kegiatan" validate:"required"`
-	KategoriKegiatan      string `form:"kategori_kegiatan" validate:"required"`
 	Status                string `form:"status" validate:"required"`
 	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
 	TanggalBerakhir       string `form:"tanggal_akhir" validate:"required"`
@@ -39,7 +38,6 @@ func (r *KerjasamaIA) MapRequest(dokumen string) (*model.Kerjasama, error) {
 		JenisKerjasama:   r.JenisKerjasama,
 		Judul:            r.Judul,
 		Keterangan:       r.Keterangan,
-		KategoriKegiatan: r.KategoriKegiatan,
 		Kegiatan:         r.Kegiatan,
 		Status:           r.Status,
 		TanggalAwal:      tanggalAwal,
