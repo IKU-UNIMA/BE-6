@@ -233,14 +233,10 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if reqData != "" {
+		json.Unmarshal([]byte(reqData), &request.Mitra)
 
-		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
-			tx.Rollback()
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
-		}
-
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
 	}
-
 	mitra := []model.MitraKerjasama{}
 	for _, v := range request.Mitra {
 		if err := validation.ValidateKerjasama(&v); err != nil {
