@@ -233,10 +233,14 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if reqData != "" {
-		json.Unmarshal([]byte(reqData), &request.Mitra)
 
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+			tx.Rollback()
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+		}
+
 	}
+
 	mitra := []model.MitraKerjasama{}
 	for _, v := range request.Mitra {
 		if err := validation.ValidateKerjasama(&v); err != nil {
@@ -246,8 +250,8 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
-	mou := &model.Kerjasama{ID: id}
-	if err := tx.WithContext(ctx).Model(mou).Association("Mitra").Replace(&mitra); err != nil {
+	ia := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}

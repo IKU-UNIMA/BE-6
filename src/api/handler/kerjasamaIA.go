@@ -200,6 +200,7 @@ func ImportKerjasamaIAHandler(c echo.Context) error {
 			NomorDokumen: rows[i][2],
 			Judul:        rows[i][3],
 			Keterangan:   rows[i][4],
+			Kegiatan:     rows[i][6],
 			Status:       rows[i][7],
 		})
 	}
@@ -336,9 +337,12 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if reqData != "" {
-		json.Unmarshal([]byte(reqData), &request.Mitra)
 
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+			tx.Rollback()
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+		}
+
 	}
 
 	mitra := []model.MitraKerjasama{}
@@ -359,28 +363,6 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
-
-	reqKegiatan := c.FormValue("kegiatan")
-
-	if reqKegiatan != "" {
-
-		if err := json.Unmarshal([]byte(reqData), &request.Kegiatan); err != nil {
-			tx.Rollback()
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "kegiatan"})
-		}
-
-	}
-
-	kegiatan := []model.KategoriKegiatan{}
-	for _, v := range request.Kegiatan {
-		kegiatan = append(kegiatan, *v.MapRequestToKerjasama())
-	}
-
-	kegiatania := &model.Kerjasama{ID: id}
-	if err := tx.WithContext(ctx).Model(kegiatania).Association("Kegiatan").Replace(&kegiatan); err != nil {
-		tx.Rollback()
-		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
 	return util.SuccessResponse(c, http.StatusOK, nil)

@@ -175,18 +175,15 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 	request := &request.KerjasamaMOA{}
 	reqData := c.FormValue("mitra")
 
+	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
 	if err := c.Bind(request); err != nil {
 		return util.FailedResponse(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()})
 	}
 
 	if err := c.Validate(request); err != nil {
 		return err
-	}
-
-	if reqData != "" {
-		json.Unmarshal([]byte(reqData), &request.Mitra)
-
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
 	}
 
 	db := database.InitMySQL()
@@ -292,9 +289,12 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if reqData != "" {
-		json.Unmarshal([]byte(reqData), &request.Mitra)
 
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
+			tx.Rollback()
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+		}
+
 	}
 
 	mitra := []model.MitraKerjasama{}
@@ -306,8 +306,8 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
-	moa := &model.Kerjasama{ID: id}
-	if err := tx.WithContext(ctx).Model(moa).Association("Mitra").Replace(&mitra); err != nil {
+	ia := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
