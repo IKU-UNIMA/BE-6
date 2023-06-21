@@ -7,15 +7,15 @@ import (
 )
 
 type KerjasamaMOU struct {
-	NomorDokumen     string `form:"nomor_dokumen" validate:"required"`
-	JenisKerjasama   string `form:"jenis_kerjasama" validate:"required"`
-	Judul            string `form:"judul" validate:"required"`
-	Keterangan       string `form:"keterangan"`
-	Mitra            []MitraKerjasama
-	Kegiatan         string `form:"kegiatan" validate:"required"`
-	Status           string `form:"status" validate:"required"`
-	TanggalAwal      string `form:"tanggal_awal" validate:"required"`
-	TanggalBerakhir  string `form:"tanggal_akhir" validate:"required"`
+	NomorDokumen    string `form:"nomor_dokumen" validate:"required"`
+	JenisKerjasama  string `form:"jenis_kerjasama" validate:"required"`
+	Judul           string `form:"judul" validate:"required"`
+	Keterangan      string `form:"keterangan"`
+	Mitra           []MitraKerjasama
+	Kegiatan        []KategoriKegiatan `form:"kegiatan" validate:"required"`
+	Status          string             `form:"status" validate:"required"`
+	TanggalAwal     string             `form:"tanggal_awal" validate:"required"`
+	TanggalBerakhir string             `form:"tanggal_akhir" validate:"required"`
 }
 
 func (r *KerjasamaMOU) MapRequest(dokumen string) (*model.Kerjasama, error) {
@@ -29,15 +29,14 @@ func (r *KerjasamaMOU) MapRequest(dokumen string) (*model.Kerjasama, error) {
 		return nil, errors.New("format tanggal salah")
 	}
 	return &model.Kerjasama{
-		JenisDokumen:     "Memorandum of Understanding (MoU)",
-		NomorDokumen:     r.NomorDokumen,
-		JenisKerjasama:   r.JenisKerjasama,
-		Judul:            r.Judul,
-		Keterangan:       r.Keterangan,
-		Kegiatan:         r.Kegiatan,
-		Status:           r.Status,
-		TanggalAwal:      tanggalAwal,
-		TanggalBerakhir:  tanggalBerakhir,
-		Dokumen:          dokumen,
+		JenisDokumen:    "Memorandum of Understanding (MoU)",
+		NomorDokumen:    r.NomorDokumen,
+		JenisKerjasama:  r.JenisKerjasama,
+		Judul:           r.Judul,
+		Keterangan:      r.Keterangan,
+		Status:          r.Status,
+		TanggalAwal:     tanggalAwal,
+		TanggalBerakhir: tanggalBerakhir,
+		Dokumen:         dokumen,
 	}, nil
 }

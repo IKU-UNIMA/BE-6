@@ -14,10 +14,10 @@ type KerjasamaIA struct {
 	Judul                 string `form:"judul" validate:"required"`
 	Keterangan            string `form:"keterangan"`
 	Mitra                 []MitraKerjasama
-	Kegiatan              string `form:"kegiatan" validate:"required"`
-	Status                string `form:"status" validate:"required"`
-	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
-	TanggalBerakhir       string `form:"tanggal_akhir" validate:"required"`
+	Kegiatan              []KategoriKegiatan `form:"kegiatan" validate:"required"`
+	Status                string             `form:"status" validate:"required"`
+	TanggalAwal           string             `form:"tanggal_awal" validate:"required"`
+	TanggalBerakhir       string             `form:"tanggal_akhir" validate:"required"`
 }
 
 func (r *KerjasamaIA) MapRequest(dokumen string) (*model.Kerjasama, error) {
@@ -31,17 +31,16 @@ func (r *KerjasamaIA) MapRequest(dokumen string) (*model.Kerjasama, error) {
 		return nil, errors.New("format tanggal salah")
 	}
 	return &model.Kerjasama{
-		IdProdi:          r.IdProdi,
-		JenisDokumen:     "Implementation Arrangement (IA)",
-		NomorDokumen:     r.NomorDokumen,
-		IdDasarDokumen:   r.DasarDokumenKerjasama,
-		JenisKerjasama:   r.JenisKerjasama,
-		Judul:            r.Judul,
-		Keterangan:       r.Keterangan,
-		Kegiatan:         r.Kegiatan,
-		Status:           r.Status,
-		TanggalAwal:      tanggalAwal,
-		TanggalBerakhir:  tanggalBerakhir,
-		Dokumen:          dokumen,
+		IdProdi:         r.IdProdi,
+		JenisDokumen:    "Implementation Arrangement (IA)",
+		NomorDokumen:    r.NomorDokumen,
+		IdDasarDokumen:  r.DasarDokumenKerjasama,
+		JenisKerjasama:  r.JenisKerjasama,
+		Judul:           r.Judul,
+		Keterangan:      r.Keterangan,
+		Status:          r.Status,
+		TanggalAwal:     tanggalAwal,
+		TanggalBerakhir: tanggalBerakhir,
+		Dokumen:         dokumen,
 	}, nil
 }
