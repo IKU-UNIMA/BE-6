@@ -250,8 +250,8 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
-	ia := &model.Kerjasama{ID: id}
-	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
+	mou := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(mou).Association("Mitra").Replace(&mitra); err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}

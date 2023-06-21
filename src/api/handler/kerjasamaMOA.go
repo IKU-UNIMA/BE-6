@@ -306,8 +306,8 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
-	ia := &model.Kerjasama{ID: id}
-	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
+	moa := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(moa).Association("Mitra").Replace(&mitra); err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
