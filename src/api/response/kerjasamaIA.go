@@ -41,17 +41,17 @@ type MitraKerjasama struct {
 }
 
 func (p *KerjasamaIA) AfterFind(tx *gorm.DB) (err error) {
+	p.TanggalAwal = strings.Split(p.TanggalAwal, "T")[0]
+
+	p.TanggalBerakhir = strings.Split(p.TanggalBerakhir, "T")[0]
+
 	today := time.Now()
-	tanggalBerakhir, _ := util.ConvertStringToDate(p.TanggalBerakhir)
+	tanggalBerakhir, err := util.ConvertStringToDate(p.TanggalBerakhir)
 	if today.Before(tanggalBerakhir) {
 		p.Status = "Aktif"
 	} else {
 		p.Status = "Kadaluarsa"
 	}
-
-	p.TanggalAwal = strings.Split(p.TanggalAwal, "T")[0]
-
-	p.TanggalBerakhir = strings.Split(p.TanggalBerakhir, "T")[0]
 
 	return
 }
