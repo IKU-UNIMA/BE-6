@@ -250,6 +250,20 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
+	// validate kategori kegiatan
+	for _, v := range request.KategoriKegiatan {
+		if err := db.WithContext(ctx).Select("id").First(new(model.KategoriKegiatan), "id", v).Error; err != nil {
+			if err.Error() == util.NOT_FOUND_ERROR {
+				return util.FailedResponse(
+					http.StatusNotFound,
+					map[string]string{"message": fmt.Sprintf("kategori kegiatan dengan id '%d' tidak ditemukan", v)},
+				)
+			}
+
+			return util.FailedResponse(http.StatusInternalServerError, nil)
+		}
+	}
+
 	if err := db.WithContext(ctx).
 		Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).
 		First(new(model.Kerjasama)).Error; err != nil {
@@ -334,7 +348,7 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	if errMapping != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
 	}
-	if err := tx.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
+	if err := tx.WithContext(ctx).Omit("dokumen", "KategoriKegiatan").Where("id", id).Updates(data).Error; err != nil {
 		tx.Rollback()
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
@@ -346,12 +360,10 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if reqData != "" {
-
 		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
 			tx.Rollback()
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
 		}
-
 	}
 
 	mitra := []model.MitraKerjasama{}
@@ -363,8 +375,27 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
+	// validate kategori kegiatan
+	for _, v := range request.KategoriKegiatan {
+		if err := db.WithContext(ctx).Select("id").First(new(model.KategoriKegiatan), "id", v).Error; err != nil {
+			if err.Error() == util.NOT_FOUND_ERROR {
+				return util.FailedResponse(
+					http.StatusNotFound,
+					map[string]string{"message": fmt.Sprintf("kategori kegiatan dengan id '%d' tidak ditemukan", v)},
+				)
+			}
+
+			return util.FailedResponse(http.StatusInternalServerError, nil)
+		}
+	}
+
 	ia := &model.Kerjasama{ID: id}
 	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
+		tx.Rollback()
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	if err := tx.WithContext(ctx).Model(ia).Association("KategoriKegiatan").Replace(&data.KategoriKegiatan); err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
