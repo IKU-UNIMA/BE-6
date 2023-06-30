@@ -136,7 +136,7 @@ func InsertKerjasamaMOUHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
 	}
 	if err := c.Bind(request); err != nil {
 		return util.FailedResponse(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()})
@@ -236,7 +236,7 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 
 		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
 			tx.Rollback()
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "mitra error"})
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
 		}
 
 	}
