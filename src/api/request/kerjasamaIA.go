@@ -51,16 +51,9 @@ func (r *KerjasamaIA) MapRequest(dokumen string) (*model.Kerjasama, error) {
 	}, nil
 }
 
-func MapToKategoriKegiatan(ids []int) []model.KategoriKegiatan {
-	result := make([]model.KategoriKegiatan, len(ids))
-	if len(ids) == 1 {
-		result = append(result, model.KategoriKegiatan{ID: ids[0]})
+func MapToKategoriKegiatan(ids []int) (result []model.KategoriKegiatan) {
+	for i := 0; i < len(ids); i++ {
+		result = append(result, model.KategoriKegiatan{ID: ids[i]})
 	}
-
-	for i := 0; i < len(ids)/2; i++ {
-		result[i] = model.KategoriKegiatan{ID: ids[i]}
-		result[len(ids)-i-1] = model.KategoriKegiatan{ID: ids[len(ids)-i-1]}
-	}
-
 	return result
 }
