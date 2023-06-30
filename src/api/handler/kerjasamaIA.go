@@ -120,7 +120,10 @@ func GetKerjasamaIAByIdHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	result := &response.KerjasamaIA{}
 
-	if err := db.WithContext(ctx).Where("jenis_dokumen", "Implementation Arrangement (IA)").Preload("Prodi").Preload("Mitra").First(result, id).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("jenis_dokumen", "Implementation Arrangement (IA)").
+		Preload("Prodi").Preload("Mitra").Preload("KategoriKegiatan").
+		First(result, id).Error; err != nil {
 		if err.Error() == util.NOT_FOUND_ERROR {
 			return util.FailedResponse(http.StatusNotFound, nil)
 		}
@@ -130,7 +133,9 @@ func GetKerjasamaIAByIdHandler(c echo.Context) error {
 
 	newResponse := response.DasarKerjasama{}
 
-	if err := db.WithContext(ctx).Debug().Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", result.IdDasarDokumen).Find(&newResponse).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", result.IdDasarDokumen).
+		Find(&newResponse).Error; err != nil {
 
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
@@ -245,7 +250,9 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
-	if err := db.WithContext(ctx).Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).First(new(model.Kerjasama)).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).
+		First(new(model.Kerjasama)).Error; err != nil {
 		if err.Error() == util.NOT_FOUND_ERROR {
 			return util.FailedResponse(http.StatusNotFound, nil)
 		}
@@ -313,7 +320,9 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
-	if err := db.WithContext(ctx).Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).First(new(model.Kerjasama)).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).
+		First(new(model.Kerjasama)).Error; err != nil {
 		if err.Error() == util.NOT_FOUND_ERROR {
 			return util.FailedResponse(http.StatusNotFound, nil)
 		}

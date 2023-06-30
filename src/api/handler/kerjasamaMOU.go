@@ -99,7 +99,10 @@ func GetKerjasamaMOUByIdHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 	result := &response.KerjasamaMOU{}
 
-	if err := db.WithContext(ctx).Where("jenis_dokumen", "Memorandum of Understanding (MoU)").Preload("Mitra").First(result, id).Error; err != nil {
+	if err := db.WithContext(ctx).
+		Where("jenis_dokumen", "Memorandum of Understanding (MoU)").
+		Preload("Mitra").Preload("KategoriKegiatan").
+		First(result, id).Error; err != nil {
 		if err.Error() == util.NOT_FOUND_ERROR {
 			return util.FailedResponse(http.StatusNotFound, nil)
 		}
