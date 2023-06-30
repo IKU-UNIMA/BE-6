@@ -206,7 +206,6 @@ func ImportKerjasamaIAHandler(c echo.Context) error {
 			Judul:        rows[i][3],
 			Keterangan:   rows[i][4],
 			Kegiatan:     rows[i][6],
-			Status:       rows[i][7],
 		})
 	}
 

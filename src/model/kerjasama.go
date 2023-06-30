@@ -16,7 +16,6 @@ type Kerjasama struct {
 	Keterangan       string           `gorm:"type:text"`
 	Mitra            []MitraKerjasama `gorm:"foreignKey:IdKerjasama;constraint:OnDelete:CASCADE"`
 	Kegiatan         string           `gorm:"type:varchar(255)"`
-	Status           string           `gorm:"type:text"`
 	Dokumen          string
 	TanggalAwal      time.Time          `gorm:"type:date"`
 	TanggalBerakhir  time.Time          `gorm:"type:date"`
