@@ -7,22 +7,23 @@ import (
 )
 
 type KerjasamaIA struct {
-	ID                    int              `json:"id"`
-	IdProdi               int              `json:"-"`
-	IdDasarDokumen        int              `json:"-"`
-	JenisDokumen          string           `json:"jenis_dokumen"`
-	NomorDokumen          string           `json:"nomor_dokumen"`
-	JenisKerjasama        string           `json:"jenis_kerjasama"`
-	DasarDokumenKerjasama DasarKerjasama   `gorm:"-" json:"dasar_dokumen_kerjasama"`
-	Judul                 string           `json:"judul"`
-	Keterangan            string           `json:"keterangan"`
-	Mitra                 []MitraKerjasama `gorm:"foreignKey:IdKerjasama" json:"mitra"`
-	Kegiatan              string           `json:"kegiatan"`
-	Status                string           `json:"status"`
-	TanggalAwal           string           `json:"tanggal_awal"`
-	TanggalBerakhir       string           `json:"tanggal_akhir"`
-	Dokumen               string           `json:"dokumen"`
-	Prodi                 ProdiReference   `gorm:"foreignKey:IdProdi" json:"prodi"`
+	ID                    int                `json:"id"`
+	IdProdi               int                `json:"-"`
+	IdDasarDokumen        int                `json:"-"`
+	JenisDokumen          string             `json:"jenis_dokumen"`
+	NomorDokumen          string             `json:"nomor_dokumen"`
+	JenisKerjasama        string             `json:"jenis_kerjasama"`
+	DasarDokumenKerjasama DasarKerjasama     `gorm:"-" json:"dasar_dokumen_kerjasama"`
+	Judul                 string             `json:"judul"`
+	Keterangan            string             `json:"keterangan"`
+	Mitra                 []MitraKerjasama   `gorm:"foreignKey:IdKerjasama" json:"mitra"`
+	Kegiatan              string             `json:"kegiatan"`
+	Status                string             `json:"status"`
+	TanggalAwal           string             `json:"tanggal_awal"`
+	TanggalBerakhir       string             `json:"tanggal_akhir"`
+	Dokumen               string             `json:"dokumen"`
+	Prodi                 ProdiReference     `gorm:"foreignKey:IdProdi" json:"prodi"`
+	KategoriKegiatan      []KategoriKegiatan `gorm:"many2many:kategori_kegiatan_kerjasama;joinForeignKey:kerjasama_id" json:"kategori_kegiatan"`
 }
 
 type MitraKerjasama struct {
