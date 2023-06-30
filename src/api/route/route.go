@@ -60,6 +60,10 @@ func InitServer() *echo.Echo {
 	kerjasama := v1.Group("/kerjasama", customMiddleware.Authentication)
 	kerjasama.PATCH("/:id/dokumen", handler.EditDokumenKerjasamaHandler)
 
+	kategoriKegiatan := kerjasama.Group("/kategori-kegiatan")
+	kategoriKegiatan.GET("", handler.GetAllKategoriKegiatan)
+	kategoriKegiatan.POST("", handler.InsertKategoriKegiatan)
+
 	IA := kerjasama.Group("/IA")
 	IA.GET("", handler.GetAllKerjasamaIAHandler)
 	IA.GET("/:id", handler.GetKerjasamaIAByIdHandler)
