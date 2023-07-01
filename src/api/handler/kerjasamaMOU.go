@@ -10,7 +10,9 @@ import (
 	"BE-6/src/util"
 	"BE-6/src/util/validation"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -160,6 +162,37 @@ func InsertKerjasamaMOUHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
+	if len(request.KategoriKegiatan) == 0 {
+		form, _ := c.MultipartForm()
+		kategoriKegiatan := form.Value["kategori_kegiatan[]"]
+		for _, v := range kategoriKegiatan {
+			id, err := strconv.Atoi(v)
+			if err != nil {
+				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "id kategori kegiatan harus berupa angka"})
+			}
+
+			request.KategoriKegiatan = append(request.KategoriKegiatan, id)
+		}
+	}
+
+	if len(request.KategoriKegiatan) == 0 {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"kategori_kegiatan": "field ini wajib diisi"})
+	}
+
+	// validate kategori kegiatan
+	for _, v := range request.KategoriKegiatan {
+		if err := db.WithContext(ctx).Select("id").First(new(model.KategoriKegiatan), "id", v).Error; err != nil {
+			if err.Error() == util.NOT_FOUND_ERROR {
+				return util.FailedResponse(
+					http.StatusNotFound,
+					map[string]string{"message": fmt.Sprintf("kategori kegiatan dengan id '%d' tidak ditemukan", v)},
+				)
+			}
+
+			return util.FailedResponse(http.StatusInternalServerError, nil)
+		}
+	}
+
 	mitra := []model.MitraKerjasama{}
 	for _, v := range request.Mitra {
 		if err := validation.ValidateKerjasama(&v); err != nil {
@@ -169,16 +202,18 @@ func InsertKerjasamaMOUHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
+	data, err := request.MapRequest()
+	if err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+	data.Mitra = mitra
+
 	dDokumen, err := storage.CreateFile(dokumen, env.GetDokumenFolderId())
 	if err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
-	data, err := request.MapRequest(util.CreateFileUrl(dDokumen.Id))
-	if err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
-	data.Mitra = mitra
+	data.Dokumen = util.CreateFileUrl(dDokumen.Id)
 
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
@@ -220,17 +255,40 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
-	data, errMapping := request.MapRequest("")
+	if len(request.KategoriKegiatan) == 0 {
+		form, _ := c.MultipartForm()
+		kategoriKegiatan := form.Value["kategori_kegiatan[]"]
+		for _, v := range kategoriKegiatan {
+			id, err := strconv.Atoi(v)
+			if err != nil {
+				return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "id kategori kegiatan harus berupa angka"})
+			}
+
+			request.KategoriKegiatan = append(request.KategoriKegiatan, id)
+		}
+	}
+
+	if len(request.KategoriKegiatan) == 0 {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"kategori_kegiatan": "field ini tidak boleh kosong"})
+	}
+
+	// validate kategori kegiatan
+	for _, v := range request.KategoriKegiatan {
+		if err := db.WithContext(ctx).Select("id").First(new(model.KategoriKegiatan), "id", v).Error; err != nil {
+			if err.Error() == util.NOT_FOUND_ERROR {
+				return util.FailedResponse(
+					http.StatusNotFound,
+					map[string]string{"message": fmt.Sprintf("kategori kegiatan dengan id '%d' tidak ditemukan", v)},
+				)
+			}
+
+			return util.FailedResponse(http.StatusInternalServerError, nil)
+		}
+	}
+
+	data, errMapping := request.MapRequest()
 	if errMapping != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
-	}
-	if err := tx.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
-		tx.Rollback()
-		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
-		}
-
-		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
 	reqData := c.FormValue("mitra")
@@ -253,8 +311,22 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
-	ia := &model.Kerjasama{ID: id}
-	if err := tx.WithContext(ctx).Model(ia).Association("Mitra").Replace(&mitra); err != nil {
+	if err := tx.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
+		tx.Rollback()
+		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	mou := &model.Kerjasama{ID: id}
+	if err := tx.WithContext(ctx).Model(mou).Association("Mitra").Replace(&mitra); err != nil {
+		tx.Rollback()
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
+	if err := tx.WithContext(ctx).Model(mou).Association("KategoriKegiatan").Replace(&data.KategoriKegiatan); err != nil {
 		tx.Rollback()
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
