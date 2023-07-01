@@ -44,13 +44,6 @@ func (r *KerjasamaIA) MapRequest() (*model.Kerjasama, error) {
 		Keterangan:       r.Keterangan,
 		TanggalAwal:      tanggalAwal,
 		TanggalBerakhir:  tanggalBerakhir,
-		KategoriKegiatan: MapToKategoriKegiatan(r.KategoriKegiatan),
+		KategoriKegiatan: MapBatchIDKategoriKegiatan(r.KategoriKegiatan),
 	}, nil
-}
-
-func MapToKategoriKegiatan(ids []int) (result []model.KategoriKegiatan) {
-	for i := 0; i < len(ids); i++ {
-		result = append(result, model.KategoriKegiatan{ID: ids[i]})
-	}
-	return result
 }
