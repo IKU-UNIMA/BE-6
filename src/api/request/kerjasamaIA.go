@@ -13,10 +13,10 @@ type KerjasamaIA struct {
 	DasarDokumenKerjasama int    `form:"dasar_dokumen_kerjasama" validate:"required"`
 	Judul                 string `form:"judul" validate:"required"`
 	Keterangan            string `form:"keterangan"`
+	KategoriKegiatan      []int  `form:"kategori_kegiatan"`
 	Mitra                 []MitraKerjasama
 	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
 	TanggalBerakhir       string `form:"tanggal_berakhir" validate:"required"`
-	KategoriKegiatan      []int  `form:"kategori_kegiatan" validate:"required"`
 }
 
 func (r *KerjasamaIA) MapRequest() (*model.Kerjasama, error) {
