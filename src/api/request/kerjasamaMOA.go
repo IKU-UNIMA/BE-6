@@ -16,7 +16,7 @@ type KerjasamaMOA struct {
 	Mitra                 []MitraKerjasama
 	KategoriKegiatan      []int  `form:"kategori_kegiatan"`
 	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
-	TanggalBerakhir       string `form:"tanggal_akhir" validate:"required"`
+	TanggalBerakhir       string `form:"tanggal_berakhir" validate:"required"`
 }
 
 func (r *KerjasamaMOA) MapRequest() (*model.Kerjasama, error) {
