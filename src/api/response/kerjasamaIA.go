@@ -22,7 +22,7 @@ type KerjasamaIA struct {
 	Kegiatan              string             `json:"kegiatan"`
 	Status                string             `json:"status"`
 	TanggalAwal           string             `json:"tanggal_awal"`
-	TanggalBerakhir       string             `json:"tanggal_akhir"`
+	TanggalBerakhir       string             `json:"tanggal_berakhir"`
 	Dokumen               string             `json:"dokumen"`
 	Prodi                 ProdiReference     `gorm:"foreignKey:IdProdi" json:"prodi"`
 	KategoriKegiatan      []KategoriKegiatan `gorm:"many2many:kategori_kegiatan_kerjasama;joinForeignKey:kerjasama_id" json:"kategori_kegiatan"`
