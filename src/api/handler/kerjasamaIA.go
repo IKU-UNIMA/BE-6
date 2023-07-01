@@ -249,6 +249,16 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
+	if err := db.WithContext(ctx).
+		Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).
+		First(new(model.Kerjasama)).Error; err != nil {
+		if err.Error() == util.NOT_FOUND_ERROR {
+			return util.FailedResponse(http.StatusNotFound, nil)
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
+	}
+
 	// validate kategori kegiatan
 	for _, v := range request.KategoriKegiatan {
 		if err := db.WithContext(ctx).Select("id").First(new(model.KategoriKegiatan), "id", v).Error; err != nil {
@@ -263,14 +273,13 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		}
 	}
 
-	if err := db.WithContext(ctx).
-		Where("jenis_dokumen IN ('Memorandum of Aggreement (MoA)', 'Memorandum of Understanding (MoU)') AND id=?", request.DasarDokumenKerjasama).
-		First(new(model.Kerjasama)).Error; err != nil {
-		if err.Error() == util.NOT_FOUND_ERROR {
-			return util.FailedResponse(http.StatusNotFound, nil)
-		}
+	data, err := request.MapRequest()
+	if err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
 
-		return util.FailedResponse(http.StatusInternalServerError, nil)
+	if len(data.KategoriKegiatan) == 0 {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"kategori_kegiatan": "field ini tidak boleh kosong"})
 	}
 
 	mitra := []model.MitraKerjasama{}
@@ -282,16 +291,14 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
+	data.Mitra = mitra
+
 	dDokumen, err := storage.CreateFile(dokumen, env.GetDokumenFolderId())
 	if err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
-	data, err := request.MapRequest(util.CreateFileUrl(dDokumen.Id))
-	if err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
-	data.Mitra = mitra
+	data.Dokumen = util.CreateFileUrl(dDokumen.Id)
 
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
@@ -343,21 +350,7 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
-	data, errMapping := request.MapRequest("")
-	if errMapping != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
-	}
-	if err := tx.WithContext(ctx).Omit("dokumen", "KategoriKegiatan").Where("id", id).Updates(data).Error; err != nil {
-		tx.Rollback()
-		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
-			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
-		}
-
-		return util.FailedResponse(http.StatusInternalServerError, nil)
-	}
-
 	reqData := c.FormValue("mitra")
-
 	if reqData != "" {
 		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
 			tx.Rollback()
@@ -386,6 +379,24 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 
 			return util.FailedResponse(http.StatusInternalServerError, nil)
 		}
+	}
+
+	data, errMapping := request.MapRequest()
+	if errMapping != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
+	}
+
+	if len(data.KategoriKegiatan) == 0 {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"kategori_kegiatan": "field ini tidak boleh kosong"})
+	}
+
+	if err := tx.WithContext(ctx).Omit("dokumen", "KategoriKegiatan").Where("id", id).Updates(data).Error; err != nil {
+		tx.Rollback()
+		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
+			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
+		}
+
+		return util.FailedResponse(http.StatusInternalServerError, nil)
 	}
 
 	ia := &model.Kerjasama{ID: id}
