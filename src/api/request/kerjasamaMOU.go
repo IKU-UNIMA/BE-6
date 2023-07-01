@@ -7,17 +7,17 @@ import (
 )
 
 type KerjasamaMOU struct {
-	NomorDokumen    string `form:"nomor_dokumen" validate:"required"`
-	JenisKerjasama  string `form:"jenis_kerjasama" validate:"required"`
-	Judul           string `form:"judul" validate:"required"`
-	Keterangan      string `form:"keterangan"`
-	Mitra           []MitraKerjasama
-	Kegiatan        string `form:"kegiatan" validate:"required"`
-	TanggalAwal     string `form:"tanggal_awal" validate:"required"`
-	TanggalBerakhir string `form:"tanggal_akhir" validate:"required"`
+	NomorDokumen     string `form:"nomor_dokumen" validate:"required"`
+	JenisKerjasama   string `form:"jenis_kerjasama" validate:"required"`
+	Judul            string `form:"judul" validate:"required"`
+	Keterangan       string `form:"keterangan"`
+	Mitra            []MitraKerjasama
+	KategoriKegiatan []int  `form:"kategori_kegiatan"`
+	TanggalAwal      string `form:"tanggal_awal" validate:"required"`
+	TanggalBerakhir  string `form:"tanggal_akhir" validate:"required"`
 }
 
-func (r *KerjasamaMOU) MapRequest(dokumen string) (*model.Kerjasama, error) {
+func (r *KerjasamaMOU) MapRequest() (*model.Kerjasama, error) {
 	tanggalAwal, err := util.ConvertStringToDate(r.TanggalAwal)
 	if err != nil {
 		return nil, errors.New("format tanggal salah")
@@ -28,14 +28,13 @@ func (r *KerjasamaMOU) MapRequest(dokumen string) (*model.Kerjasama, error) {
 		return nil, errors.New("format tanggal salah")
 	}
 	return &model.Kerjasama{
-		JenisDokumen:    "Memorandum of Understanding (MoU)",
-		NomorDokumen:    r.NomorDokumen,
-		JenisKerjasama:  r.JenisKerjasama,
-		Judul:           r.Judul,
-		Keterangan:      r.Keterangan,
-		Kegiatan:        r.Kegiatan,
-		TanggalAwal:     tanggalAwal,
-		TanggalBerakhir: tanggalBerakhir,
-		Dokumen:         dokumen,
+		JenisDokumen:     "Memorandum of Understanding (MoU)",
+		NomorDokumen:     r.NomorDokumen,
+		JenisKerjasama:   r.JenisKerjasama,
+		Judul:            r.Judul,
+		Keterangan:       r.Keterangan,
+		TanggalAwal:      tanggalAwal,
+		TanggalBerakhir:  tanggalBerakhir,
+		KategoriKegiatan: MapBatchIDKategoriKegiatan(r.KategoriKegiatan),
 	}, nil
 }

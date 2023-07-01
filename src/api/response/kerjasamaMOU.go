@@ -9,18 +9,18 @@ import (
 )
 
 type KerjasamaMOU struct {
-	ID              int              `json:"id"`
-	JenisDokumen    string           `json:"jenis_dokumen"`
-	NomorDokumen    string           `json:"nomor_dokumen"`
-	JenisKerjasama  string           `json:"jenis_kerjasama"`
-	Judul           string           `json:"judul"`
-	Keterangan      string           `json:"keterangan"`
-	Mitra           []MitraKerjasama `gorm:"foreignKey:IdKerjasama" json:"mitra"`
-	Kegiatan        string           `json:"kegiatan"`
-	Status          string           `json:"status"`
-	TanggalAwal     string           `json:"tanggal_awal"`
-	TanggalBerakhir string           `json:"tanggal_akhir"`
-	Dokumen         string           `json:"dokumen"`
+	ID               int                `json:"id"`
+	JenisDokumen     string             `json:"jenis_dokumen"`
+	NomorDokumen     string             `json:"nomor_dokumen"`
+	JenisKerjasama   string             `json:"jenis_kerjasama"`
+	Judul            string             `json:"judul"`
+	Keterangan       string             `json:"keterangan"`
+	Mitra            []MitraKerjasama   `gorm:"foreignKey:IdKerjasama" json:"mitra"`
+	Status           string             `json:"status"`
+	TanggalAwal      string             `json:"tanggal_awal"`
+	TanggalBerakhir  string             `json:"tanggal_akhir"`
+	Dokumen          string             `json:"dokumen"`
+	KategoriKegiatan []KategoriKegiatan `gorm:"many2many:kategori_kegiatan_kerjasama;joinForeignKey:kerjasama_id" json:"kategori_kegiatan"`
 }
 
 func (p *KerjasamaMOU) AfterFind(tx *gorm.DB) (err error) {
