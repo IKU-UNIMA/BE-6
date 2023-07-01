@@ -14,13 +14,12 @@ type KerjasamaIA struct {
 	Judul                 string `form:"judul" validate:"required"`
 	Keterangan            string `form:"keterangan"`
 	Mitra                 []MitraKerjasama
-	Kegiatan              string `form:"kegiatan" validate:"required"`
 	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
 	TanggalBerakhir       string `form:"tanggal_berakhir" validate:"required"`
 	KategoriKegiatan      []int  `form:"kategori_kegiatan" validate:"required"`
 }
 
-func (r *KerjasamaIA) MapRequest(dokumen string) (*model.Kerjasama, error) {
+func (r *KerjasamaIA) MapRequest() (*model.Kerjasama, error) {
 	tanggalAwal, err := util.ConvertStringToDate(r.TanggalAwal)
 	if err != nil {
 		return nil, errors.New("format tanggal awal salah")
@@ -43,10 +42,8 @@ func (r *KerjasamaIA) MapRequest(dokumen string) (*model.Kerjasama, error) {
 		JenisKerjasama:   r.JenisKerjasama,
 		Judul:            r.Judul,
 		Keterangan:       r.Keterangan,
-		Kegiatan:         r.Kegiatan,
 		TanggalAwal:      tanggalAwal,
 		TanggalBerakhir:  tanggalBerakhir,
-		Dokumen:          dokumen,
 		KategoriKegiatan: MapToKategoriKegiatan(r.KategoriKegiatan),
 	}, nil
 }
