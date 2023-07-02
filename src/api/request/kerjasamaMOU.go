@@ -27,6 +27,11 @@ func (r *KerjasamaMOU) MapRequest() (*model.Kerjasama, error) {
 	if err != nil {
 		return nil, errors.New("format tanggal salah")
 	}
+
+	if tanggalBerakhir.Before(tanggalAwal) {
+		return nil, errors.New("tanggal awal tidak boleh melebihi tanggal berakhir")
+	}
+
 	return &model.Kerjasama{
 		JenisDokumen:     "Memorandum of Understanding (MoU)",
 		NomorDokumen:     r.NomorDokumen,
