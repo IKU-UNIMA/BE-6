@@ -29,6 +29,11 @@ func (r *KerjasamaMOA) MapRequest() (*model.Kerjasama, error) {
 	if err != nil {
 		return nil, errors.New("format tanggal salah")
 	}
+
+	if tanggalBerakhir.Before(tanggalAwal) {
+		return nil, errors.New("tanggal awal tidak boleh melebihi tanggal berakhir")
+	}
+
 	return &model.Kerjasama{
 		IdFakultas:       r.IdFakultas,
 		JenisDokumen:     "Memorandum of Aggreement (MoA)",
