@@ -39,7 +39,7 @@ func GetDasarKerjasamaIAHandler(c echo.Context) error {
 		condition += " AND UPPER(judul) LIKE '%" + strings.ToUpper(queryParams.Judul) + "%'"
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	data := []response.DasarKerjasama{}
 
@@ -73,7 +73,7 @@ func GetAllKerjasamaIAHandler(c echo.Context) error {
 
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	limit := 20
 	data := []response.KerjasamaIA{}
@@ -117,7 +117,7 @@ func GetKerjasamaIAByIdHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	result := &response.KerjasamaIA{}
 
@@ -151,7 +151,7 @@ func GetKerjasamaIAByIdHandler(c echo.Context) error {
 // 		return err
 // 	}
 
-// 	db := database.InitMySQL()
+// 	db := database.DB
 // 	ctx := c.Request().Context()
 // 	result := &response.KerjasamaIA{}
 
@@ -172,7 +172,7 @@ func ImportKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	data := []model.Kerjasama{}
 
@@ -239,7 +239,7 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	dokumen, _ := c.FormFile("file")
 	if dokumen == nil {
@@ -341,7 +341,7 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	tx := db.Begin()
 	ctx := c.Request().Context()
 
@@ -455,7 +455,7 @@ func DeleteKerjasamaIAHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 
 	query := db.WithContext(ctx).Delete(new(model.Kerjasama), id)

@@ -38,7 +38,7 @@ func GetDasarKerjasamaMOAHandler(c echo.Context) error {
 		condition += " AND UPPER(judul) LIKE '%" + strings.ToUpper(queryParams.Judul) + "%'"
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	data := []response.DasarKerjasama{}
 
@@ -72,7 +72,7 @@ func GetAllKerjasamaMOAHandler(c echo.Context) error {
 
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	limit := 20
 	data := []response.KerjasamaMOA{}
@@ -111,7 +111,7 @@ func GetAllKerjasamaMOAHandler(c echo.Context) error {
 }
 
 // func GetAllKerjasamaMOAHandler(c echo.Context) error {
-// 	db := database.InitMySQL()
+// 	db := database.DB
 // 	ctx := c.Request().Context()
 // 	result := []response.KerjasamaMOA{}
 
@@ -128,7 +128,7 @@ func GetKerjasamaMOAByIdHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	result := &response.KerjasamaMOA{}
 
@@ -162,7 +162,7 @@ func GetKerjasamaMOAByIdHandler(c echo.Context) error {
 // 		return err
 // 	}
 
-// 	db := database.InitMySQL()
+// 	db := database.DB
 // 	ctx := c.Request().Context()
 // 	result := &response.KerjasamaMOA{}
 
@@ -192,7 +192,7 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	dokumen, _ := c.FormFile("file")
 	if dokumen == nil {
@@ -294,7 +294,7 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	tx := db.Begin()
 	ctx := c.Request().Context()
 
@@ -409,7 +409,7 @@ func DeleteKerjasamaMOAHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 
 	query := db.WithContext(ctx).Delete(new(model.Kerjasama), id)

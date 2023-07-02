@@ -45,7 +45,7 @@ func GetAllKerjasamaMOUHandler(c echo.Context) error {
 
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	limit := 20
 	data := []response.KerjasamaMOU{}
@@ -80,7 +80,7 @@ func GetAllKerjasamaMOUHandler(c echo.Context) error {
 }
 
 // func GetAllKerjasamaMOUHandler(c echo.Context) error {
-// 	db := database.InitMySQL()
+// 	db := database.DB
 // 	ctx := c.Request().Context()
 // 	result := []response.KerjasamaMOU{}
 
@@ -97,7 +97,7 @@ func GetKerjasamaMOUByIdHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	result := &response.KerjasamaMOU{}
 
@@ -121,7 +121,7 @@ func GetKerjasamaMOUByIdHandler(c echo.Context) error {
 // 		return err
 // 	}
 
-// 	db := database.InitMySQL()
+// 	db := database.DB
 // 	ctx := c.Request().Context()
 // 	result := &response.KerjasamaMOU{}
 
@@ -151,7 +151,7 @@ func InsertKerjasamaMOUHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	dokumen, _ := c.FormFile("file")
 	if dokumen == nil {
@@ -242,7 +242,7 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	tx := db.Begin()
 	ctx := c.Request().Context()
 
@@ -347,7 +347,7 @@ func DeleteKerjasamaMOUHandler(c echo.Context) error {
 		return err
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 
 	query := db.WithContext(ctx).Delete(new(model.Kerjasama), id)

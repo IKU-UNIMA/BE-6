@@ -11,7 +11,7 @@ import (
 )
 
 func GetAllKategoriKegiatan(c echo.Context) error {
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	data := []response.KategoriKegiatan{}
 
@@ -28,7 +28,7 @@ func InsertKategoriKegiatan(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
-	db := database.InitMySQL()
+	db := database.DB
 	ctx := c.Request().Context()
 	data := req.MapRequest()
 
