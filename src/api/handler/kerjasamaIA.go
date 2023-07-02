@@ -416,7 +416,8 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": errMapping.Error()})
 	}
 
-	if err := tx.WithContext(ctx).Omit("dokumen", "KategoriKegiatan").Where("id", id).Updates(data).Error; err != nil {
+	if err := tx.WithContext(ctx).Omit("jenis_dokumen", "dokumen", "KategoriKegiatan").
+		Where("jenis_dokumen = 'Implementation Arrangement (IA)' AND id = ?", id).Updates(data).Error; err != nil {
 		tx.Rollback()
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
