@@ -315,11 +315,10 @@ func InsertKerjasamaIAHandler(c echo.Context) error {
 	data.Dokumen = util.CreateFileUrl(dDokumen.Id)
 
 	if err := db.WithContext(ctx).Create(data).Error; err != nil {
+		storage.DeleteFile(dDokumen.Id)
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat duplikasi"})
 		}
-
-		storage.DeleteFile(dDokumen.Id)
 
 		return nil
 	}
@@ -443,7 +442,6 @@ func EditKerjasamaIAHandler(c echo.Context) error {
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
