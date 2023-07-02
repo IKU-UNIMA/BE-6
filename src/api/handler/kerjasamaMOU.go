@@ -293,12 +293,10 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 	reqData := c.FormValue("mitra")
 
 	if reqData != "" {
-
 		if err := json.Unmarshal([]byte(reqData), &request.Mitra); err != nil {
 			tx.Rollback()
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
 		}
-
 	}
 
 	mitra := []model.MitraKerjasama{}
@@ -310,7 +308,8 @@ func EditKerjasamaMOUHandler(c echo.Context) error {
 		mitra = append(mitra, *v.MapRequestToKerjasama())
 	}
 
-	if err := tx.WithContext(ctx).Omit("dokumen").Where("id", id).Updates(data).Error; err != nil {
+	if err := tx.WithContext(ctx).Omit("jenis_dokumen", "dokumen", "KategoriKegiatan").
+		Where("jenis_dokumen = 'Memorandum of Understanding (MoU)' AND id = ?", id).Updates(data).Error; err != nil {
 		tx.Rollback()
 		if strings.Contains(err.Error(), util.UNIQUE_ERROR) {
 			return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": "nomor surat tidak boleh sama"})
