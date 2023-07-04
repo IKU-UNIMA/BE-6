@@ -57,7 +57,7 @@ func GetAllKerjasamaMOUHandler(c echo.Context) error {
 	}
 
 	if err := db.WithContext(ctx).Debug().Table("kerjasama").
-		Where(condition).
+		Where(condition).Preload("Mitra").
 		Offset(util.CountOffset(queryParams.Page, limit)).
 		Limit(limit).Where(condition).
 		Find(&data).Error; err != nil {
