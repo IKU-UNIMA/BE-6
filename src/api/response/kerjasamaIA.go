@@ -29,15 +29,15 @@ type KerjasamaIA struct {
 }
 
 type MitraKerjasama struct {
-	ID                     int `gorm:"primaryKey"`
+	ID                     int `json:"id"`
 	IdKerjasama            int
-	NamaInstansi           string `gorm:"type:text"`
-	NegaraAsal             string `gorm:"type:varchar(255)"`
-	Bidang                 string `gorm:"type:varchar(255)"`
-	Penandatangan          string `gorm:"type:varchar(255)"`
-	JabatanPenandatangan   string `gorm:"type:varchar(255)"`
-	PenanggungJawab        string `gorm:"type:varchar(255)"`
-	JabatanPenanggungJawab string `gorm:"type:varchar(255)"`
+	NamaInstansi           string `json:"nama_instansi"`
+	NegaraAsal             string `json:"negara_asal"`
+	Bidang                 string `json:"bidang"`
+	Penandatangan          string `json:"penandatangan"`
+	JabatanPenandatangan   string `json:"jabatan_penandatangan"`
+	PenanggungJawab        string `json:"penanggung_jawab"`
+	JabatanPenanggungJawab string `json:"jabatan_penanggung_jawab"`
 }
 
 func (p *KerjasamaIA) AfterFind(tx *gorm.DB) (err error) {
