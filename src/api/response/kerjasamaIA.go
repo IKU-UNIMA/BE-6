@@ -29,8 +29,8 @@ type KerjasamaIA struct {
 }
 
 type MitraKerjasama struct {
-	ID                     int `json:"id"`
-	IdKerjasama            int
+	ID                     int    `json:"id"`
+	IdKerjasama            int    `json:"-"`
 	NamaInstansi           string `json:"nama_instansi"`
 	NegaraAsal             string `json:"negara_asal"`
 	Bidang                 string `json:"bidang"`
