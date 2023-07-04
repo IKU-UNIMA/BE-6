@@ -19,7 +19,7 @@ type Kerjasama struct {
 	Dokumen          string
 	TanggalAwal      time.Time          `gorm:"type:date"`
 	TanggalBerakhir  time.Time          `gorm:"type:date"`
-	KategoriKegiatan []KategoriKegiatan `gorm:"many2many:kategori_kegiatan_kerjasama"`
+	KategoriKegiatan []KategoriKegiatan `gorm:"many2many:kategori_kegiatan_kerjasama;constraint:OnDelete:CASCADE"`
 }
 
 type MitraKerjasama struct {
