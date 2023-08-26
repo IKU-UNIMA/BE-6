@@ -24,7 +24,7 @@ type KerjasamaMOA struct {
 	TanggalBerakhir       string             `json:"tanggal_berakhir"`
 	Dokumen               string             `json:"dokumen"`
 	Fakultas              FakultasReference  `gorm:"foreignKey:IdFakultas" json:"fakultas"`
-	KategoriKegiatan      []KategoriKegiatan `gorm:"foreignKey:kerjasama" json:"kategori_kegiatan"`
+	KategoriKegiatan      []KategoriKegiatan `gorm:"foreignKey:IdKerjasama" json:"kategori_kegiatan"`
 }
 
 func (p *KerjasamaMOA) AfterFind(tx *gorm.DB) (err error) {
