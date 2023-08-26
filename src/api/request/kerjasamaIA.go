@@ -13,8 +13,8 @@ type KerjasamaIA struct {
 	DasarDokumenKerjasama int    `form:"dasar_dokumen_kerjasama" validate:"required"`
 	Judul                 string `form:"judul" validate:"required"`
 	Keterangan            string `form:"keterangan"`
-	KategoriKegiatan      []int  `form:"kategori_kegiatan"`
-	Mitra                 []MitraKerjasama
+	KategoriKegiatan      string `form:"kategori_kegiatan" validate:"required,json"`
+	Mitra                 string `form:"mitra" validate:"required,json"`
 	TanggalAwal           string `form:"tanggal_awal" validate:"required"`
 	TanggalBerakhir       string `form:"tanggal_berakhir" validate:"required"`
 }
@@ -35,15 +35,14 @@ func (r *KerjasamaIA) MapRequest() (*model.Kerjasama, error) {
 	}
 
 	return &model.Kerjasama{
-		IdProdi:          r.IdProdi,
-		JenisDokumen:     "Implementation Arrangement (IA)",
-		NomorDokumen:     r.NomorDokumen,
-		IdDasarDokumen:   r.DasarDokumenKerjasama,
-		JenisKerjasama:   r.JenisKerjasama,
-		Judul:            r.Judul,
-		Keterangan:       r.Keterangan,
-		TanggalAwal:      tanggalAwal,
-		TanggalBerakhir:  tanggalBerakhir,
-		KategoriKegiatan: MapBatchIDKategoriKegiatan(r.KategoriKegiatan),
+		IdProdi:         r.IdProdi,
+		JenisDokumen:    "Implementation Arrangement (IA)",
+		NomorDokumen:    r.NomorDokumen,
+		IdDasarDokumen:  r.DasarDokumenKerjasama,
+		JenisKerjasama:  r.JenisKerjasama,
+		Judul:           r.Judul,
+		Keterangan:      r.Keterangan,
+		TanggalAwal:     tanggalAwal,
+		TanggalBerakhir: tanggalBerakhir,
 	}, nil
 }
