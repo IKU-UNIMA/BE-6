@@ -25,7 +25,7 @@ type KerjasamaIA struct {
 	TanggalBerakhir       string             `json:"tanggal_berakhir"`
 	Dokumen               string             `json:"dokumen"`
 	Prodi                 ProdiReference     `gorm:"foreignKey:IdProdi" json:"prodi"`
-	KategoriKegiatan      []KategoriKegiatan `gorm:"many2many:kategori_kegiatan_kerjasama;joinForeignKey:kerjasama_id" json:"kategori_kegiatan"`
+	KategoriKegiatan      []KategoriKegiatan `gorm:"foreignKey:Idkerjasama" json:"kategori_kegiatan"`
 }
 
 type MitraKerjasama struct {
