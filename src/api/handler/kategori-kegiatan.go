@@ -13,7 +13,7 @@ import (
 func GetAllKategoriKegiatan(c echo.Context) error {
 	db := database.DB
 	ctx := c.Request().Context()
-	data := []response.KategoriKegiatan{}
+	data := []response.JenisKategoriKegiatan{}
 
 	if err := db.WithContext(ctx).Find(&data).Error; err != nil {
 		return util.FailedResponse(http.StatusInternalServerError, nil)
@@ -23,7 +23,7 @@ func GetAllKategoriKegiatan(c echo.Context) error {
 }
 
 func InsertKategoriKegiatan(c echo.Context) error {
-	req := &request.KategoriKegiatan{}
+	req := &request.JenisKategoriKegiatan{}
 	if err := c.Bind(req); err != nil {
 		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}

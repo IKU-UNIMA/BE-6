@@ -3,16 +3,23 @@ package request
 import "BE-6/src/model"
 
 type KategoriKegiatan struct {
-	Nama string `json:"nama"`
+	IdJenisKategoriKegiatan int     `json:"id"`
+	NilaiKontrak            float64 `json:"nilai_kontrak"`
+	Volume                  string  `json:"volume"`
+	At                      string  `json:"at"`
+	Keterangan              string  `json:"keterangan"`
+	Sasaran                 string  `json:"sasaran"`
+	IndikatorKinerja        string  `json:"indikator_kinerja"`
 }
 
 func (r *KategoriKegiatan) MapRequest() *model.KategoriKegiatan {
-	return &model.KategoriKegiatan{Nama: r.Nama}
-}
-
-func MapBatchIDKategoriKegiatan(ids []int) (result []model.KategoriKegiatan) {
-	for i := 0; i < len(ids); i++ {
-		result = append(result, model.KategoriKegiatan{ID: ids[i]})
+	return &model.KategoriKegiatan{
+		IdJenisKategoriKegiatan: r.IdJenisKategoriKegiatan,
+		NilaiKontrak:            r.NilaiKontrak,
+		Volume:                  r.Volume,
+		At:                      r.At,
+		Keterangan:              r.Keterangan,
+		Sasaran:                 r.Sasaran,
+		IndikatorKinerja:        r.IndikatorKinerja,
 	}
-	return result
 }
