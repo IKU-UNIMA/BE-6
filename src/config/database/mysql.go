@@ -36,5 +36,6 @@ func MigrateMySQL() {
 		&model.Target{},
 		&model.MitraKerjasama{},
 		&model.KategoriKegiatan{},
+		&model.JenisKategoriKegiatan{},
 	)
 }
