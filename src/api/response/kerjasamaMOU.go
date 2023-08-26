@@ -20,7 +20,7 @@ type KerjasamaMOU struct {
 	TanggalAwal      string             `json:"tanggal_awal"`
 	TanggalBerakhir  string             `json:"tanggal_berakhir"`
 	Dokumen          string             `json:"dokumen"`
-	KategoriKegiatan []KategoriKegiatan `gorm:"foreignKey:Idkerjasama" json:"kategori_kegiatan"`
+	KategoriKegiatan []KategoriKegiatan `gorm:"foreignKey:IdKerjasama" json:"kategori_kegiatan"`
 }
 
 func (p *KerjasamaMOU) AfterFind(tx *gorm.DB) (err error) {
