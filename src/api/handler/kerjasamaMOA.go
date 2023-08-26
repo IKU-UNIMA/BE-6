@@ -178,23 +178,13 @@ func GetKerjasamaMOAByIdHandler(c echo.Context) error {
 
 func InsertKerjasamaMOAHandler(c echo.Context) error {
 	req := &request.KerjasamaMOA{}
-	reqMitra := []request.MitraKerjasama{}
-	reqKategoriKegiatan := []request.KategoriKegiatan{}
-
-	if err := c.Bind(req); err != nil {
-		return util.FailedResponse(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()})
+	reqData := c.FormValue("data")
+	if err := json.Unmarshal([]byte(reqData), req); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
 	}
 
 	if err := c.Validate(req); err != nil {
 		return err
-	}
-
-	if err := json.Unmarshal([]byte(req.Mitra), &reqMitra); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
-	}
-
-	if err := json.Unmarshal([]byte(req.KategoriKegiatan), &reqKategoriKegiatan); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"kategori_kegiatan": err.Error()})
 	}
 
 	db := database.DB
@@ -220,7 +210,7 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 
 	// validate kategori kegiatan
 	kategoriKegiatan := []model.KategoriKegiatan{}
-	for _, v := range reqKategoriKegiatan {
+	for _, v := range req.KategoriKegiatan {
 		if err := db.WithContext(ctx).Select("id").
 			First(new(model.JenisKategoriKegiatan), "id", v.IdJenisKategoriKegiatan).Error; err != nil {
 			if err.Error() == util.NOT_FOUND_ERROR {
@@ -237,7 +227,7 @@ func InsertKerjasamaMOAHandler(c echo.Context) error {
 	}
 
 	mitra := []model.MitraKerjasama{}
-	for _, v := range reqMitra {
+	for _, v := range req.Mitra {
 		if err := validation.ValidateKerjasama(&v); err != nil {
 			return err
 		}
@@ -279,23 +269,13 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 	}
 
 	req := &request.KerjasamaMOA{}
-	reqKategoriKegiatan := []request.KategoriKegiatan{}
-	reqMitra := []request.MitraKerjasama{}
-
-	if err := c.Bind(req); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	reqData := c.FormValue("data")
+	if err := json.Unmarshal([]byte(reqData), req); err != nil {
+		return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
 	}
 
 	if err := c.Validate(req); err != nil {
 		return err
-	}
-
-	if err := json.Unmarshal([]byte(req.Mitra), &reqMitra); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"mitra": err.Error()})
-	}
-
-	if err := json.Unmarshal([]byte(req.KategoriKegiatan), &reqKategoriKegiatan); err != nil {
-		return util.FailedResponse(http.StatusBadRequest, map[string]string{"kategori_kegiatan": err.Error()})
 	}
 
 	db := database.DB
@@ -322,7 +302,7 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 
 	// validate kategori kegiatan
 	kategoriKegiatan := []model.KategoriKegiatan{}
-	for _, v := range reqKategoriKegiatan {
+	for _, v := range req.KategoriKegiatan {
 		if err := db.WithContext(ctx).Select("id").
 			First(new(model.JenisKategoriKegiatan), "id", v.IdJenisKategoriKegiatan).Error; err != nil {
 			if err.Error() == util.NOT_FOUND_ERROR {
@@ -344,7 +324,7 @@ func EditKerjasamaMOAHandler(c echo.Context) error {
 	}
 
 	mitra := []model.MitraKerjasama{}
-	for _, v := range reqMitra {
+	for _, v := range req.Mitra {
 		if err := validation.ValidateKerjasama(&v); err != nil {
 			return err
 		}
