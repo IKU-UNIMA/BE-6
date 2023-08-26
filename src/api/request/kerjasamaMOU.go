@@ -7,14 +7,14 @@ import (
 )
 
 type KerjasamaMOU struct {
-	NomorDokumen     string `form:"nomor_dokumen" validate:"required"`
-	JenisKerjasama   string `form:"jenis_kerjasama" validate:"required"`
-	Judul            string `form:"judul" validate:"required"`
-	Keterangan       string `form:"keterangan"`
-	Mitra            string `form:"mitra" validate:"required,json"`
-	KategoriKegiatan string `form:"kategori_kegiatan" validate:"required,json"`
-	TanggalAwal      string `form:"tanggal_awal" validate:"required"`
-	TanggalBerakhir  string `form:"tanggal_berakhir" validate:"required"`
+	NomorDokumen     string             `json:"nomor_dokumen" validate:"required"`
+	JenisKerjasama   string             `json:"jenis_kerjasama" validate:"required"`
+	Judul            string             `json:"judul" validate:"required"`
+	Keterangan       string             `json:"keterangan"`
+	Mitra            []MitraKerjasama   `json:"mitra" validate:"required"`
+	KategoriKegiatan []KategoriKegiatan `json:"kategori_kegiatan" validate:"required"`
+	TanggalAwal      string             `json:"tanggal_awal" validate:"required"`
+	TanggalBerakhir  string             `json:"tanggal_berakhir" validate:"required"`
 }
 
 func (r *KerjasamaMOU) MapRequest() (*model.Kerjasama, error) {
