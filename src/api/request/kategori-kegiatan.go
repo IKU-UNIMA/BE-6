@@ -3,7 +3,7 @@ package request
 import "BE-6/src/model"
 
 type KategoriKegiatan struct {
-	IdJenisKategoriKegiatan int     `json:"id"`
+	IdJenisKategoriKegiatan int     `json:"id_jenis_kategori_kegiatan"`
 	NilaiKontrak            float64 `json:"nilai_kontrak"`
 	Volume                  string  `json:"volume"`
 	At                      string  `json:"at"`
