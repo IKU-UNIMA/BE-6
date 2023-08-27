@@ -13,7 +13,7 @@ type KerjasamaIA struct {
 	DasarDokumenKerjasama int                `json:"dasar_dokumen_kerjasama" validate:"required"`
 	Judul                 string             `json:"judul" validate:"required"`
 	Keterangan            string             `json:"keterangan"`
-	Anggaran              string             `json:"anggaran"`
+	Anggaran              float64            `json:"anggaran"`
 	SumberPendanaan       string             `json:"sumber_pendanaan"`
 	KategoriKegiatan      []KategoriKegiatan `json:"kategori_kegiatan" validate:"required"`
 	Mitra                 []MitraKerjasama   `json:"mitra" validate:"required"`
@@ -43,6 +43,8 @@ func (r *KerjasamaIA) MapRequest() (*model.Kerjasama, error) {
 		IdDasarDokumen:  r.DasarDokumenKerjasama,
 		JenisKerjasama:  r.JenisKerjasama,
 		Judul:           r.Judul,
+		Anggaran:        r.Anggaran,
+		SumberPendanaan: r.SumberPendanaan,
 		Keterangan:      r.Keterangan,
 		TanggalAwal:     tanggalAwal,
 		TanggalBerakhir: tanggalBerakhir,
