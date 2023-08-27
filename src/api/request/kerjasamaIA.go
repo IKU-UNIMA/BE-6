@@ -13,6 +13,8 @@ type KerjasamaIA struct {
 	DasarDokumenKerjasama int                `json:"dasar_dokumen_kerjasama" validate:"required"`
 	Judul                 string             `json:"judul" validate:"required"`
 	Keterangan            string             `json:"keterangan"`
+	Anggaran              string             `json:"anggaran"`
+	SumberPendanaan       string             `json:"sumber_pendanaan"`
 	KategoriKegiatan      []KategoriKegiatan `json:"kategori_kegiatan" validate:"required"`
 	Mitra                 []MitraKerjasama   `json:"mitra" validate:"required"`
 	TanggalAwal           string             `json:"tanggal_awal" validate:"required"`
