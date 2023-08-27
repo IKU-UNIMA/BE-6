@@ -18,6 +18,8 @@ type KerjasamaIA struct {
 	DasarDokumenKerjasama DasarKerjasama     `gorm:"-" json:"dasar_dokumen_kerjasama"`
 	Judul                 string             `json:"judul"`
 	Keterangan            string             `json:"keterangan"`
+	Anggaran              string             `json:"anggaran"`
+	SumberPendanaan       string             `json:"sumber_pendanaan"`
 	Mitra                 []MitraKerjasama   `gorm:"foreignKey:IdKerjasama" json:"mitra"`
 	Kegiatan              string             `json:"kegiatan"`
 	Status                string             `json:"status"`
